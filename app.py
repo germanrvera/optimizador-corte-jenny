@@ -143,6 +143,8 @@ st.markdown("""
         padding: 0.75rem;
         font-size: 1rem;
         transition: border-color 0.2s ease;
+        color: #1f2937 !important;
+        background-color: #ffffff !important;
     }
     
     .stNumberInput > div > div > input:focus {
