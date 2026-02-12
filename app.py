@@ -1081,7 +1081,7 @@ else:
         st.metric(
             label="Material Usado",
             value=f"{metros_utilizados:.2f}m",
-            delta=f"{len(st.session_state.pedidos)} pedidos"
+            delta=f"{len(st.session_state.pedidos)} cortes"
         )
     
     st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
