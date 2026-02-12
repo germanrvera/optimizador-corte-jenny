@@ -965,7 +965,7 @@ if st.session_state.resultados is None:
             </div>
             <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
-                <h4>Agrega pedidos</h4>
+                <h4>Agrega cortes</h4>
                 <p style="font-size: 0.9rem; color: #64748b;">Especifica largos y cantidades necesarias</p>
             </div>
             <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
