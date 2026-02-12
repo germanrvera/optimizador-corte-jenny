@@ -1160,7 +1160,7 @@ else:
         elif eficiencia_promedio >= 70:
             st.info("ℹ️ Buena optimización - Desperdicio aceptable")
         else:
-            st.warning("⚠️ Optimización mejorable - Considere ajustar los pedidos")
+            st.warning("⚠️ Optimización mejorable - Considere ajustar los cortes")
     
     # Resultados de fuentes de energía
     if st.session_state.resultados_fuentes:
