@@ -44,7 +44,10 @@ st.markdown("""
 <style>
     /* Importar fuentes distintivas */
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Work+Sans:wght@300;500;700&display=swap');
-    
+    /* Forzar transparencia en imágenes */
+    img   {
+      background: transparent !important;
+    }
     /* Variables CSS */
     :root {
         --primary-color: #0f172a;
