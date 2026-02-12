@@ -44,8 +44,11 @@ st.markdown("""
 <style>
     /* Forzar transparencia en todas las imágenes */
     img {
-        background: transparent !important;
-        background-color: transparent !important;
+        background: white !important;
+        background-color: white !important;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
     /* Contenedor de imágenes sin fondo */
