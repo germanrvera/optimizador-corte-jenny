@@ -42,12 +42,20 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    /* Forzar transparencia en todas las imágenes */
+    img {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+    
+    /* Contenedor de imágenes sin fondo */
+    [data-testid="stImage"] {
+        background: transparent !important;
+    }
+    
     /* Importar fuentes distintivas */
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Work+Sans:wght@300;500;700&display=swap');
-    /* Forzar transparencia en imágenes */
-    img   {
-      background: transparent !important;
-    }
+    
     /* Variables CSS */
     :root {
         --primary-color: #0f172a;
@@ -146,8 +154,21 @@ st.markdown("""
         padding: 0.75rem;
         font-size: 1rem;
         transition: border-color 0.2s ease;
-        color: #1f2937 !important;
+        color: #0f172a !important;
         background-color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Forzar color en inputs del sidebar */
+    [data-testid="stSidebar"] .stNumberInput > div > div > input {
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Labels de inputs en sidebar */
+    [data-testid="stSidebar"] label {
+        color: #ffffff !important;
     }
     
     .stNumberInput > div > div > input:focus {
@@ -167,7 +188,15 @@ st.markdown("""
         background: linear-gradient(180deg, var(--primary-color) 0%, #1e293b 100%);
     }
     
-    [data-testid="stSidebar"] * {
+    /* Solo títulos y textos en blanco, NO inputs */
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] h4,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] span:not(.stNumberInput span),
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] .stMarkdown {
         color: white !important;
     }
     
@@ -970,7 +999,7 @@ if st.session_state.resultados is None:
             </div>
             <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
                 <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
-                <h4>Agrega cortes</h4>
+                <h4>Agrega pedidos</h4>
                 <p style="font-size: 0.9rem; color: #64748b;">Especifica largos y cantidades necesarias</p>
             </div>
             <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
@@ -1165,7 +1194,7 @@ else:
         elif eficiencia_promedio >= 70:
             st.info("ℹ️ Buena optimización - Desperdicio aceptable")
         else:
-            st.warning("⚠️ Optimización mejorable - Considere ajustar los cortes")
+            st.warning("⚠️ Optimización mejorable - Considere ajustar los pedidos")
     
     # Resultados de fuentes de energía
     if st.session_state.resultados_fuentes:
