@@ -1038,8 +1038,12 @@ else:
     
     # Visualización
     st.markdown("## 🎨 Distribución de Cortes")
+    st.caption("📊 Ordenados de menor a mayor desperdicio (más eficientes primero)")
     
-    for idx, rollo in enumerate(rollos, 1):
+    # Ordenar rollos: primero los más eficientes (menos desperdicio)
+    rollos_ordenados = sorted(rollos, key=lambda r: r.desperdicio)
+    
+    for idx, rollo in enumerate(rollos_ordenados, 1):
         with st.container():
             st.markdown('<div class="custom-card">', unsafe_allow_html=True)
             
@@ -1066,7 +1070,7 @@ else:
     st.markdown("## 📋 Detalle Completo")
     
     datos = []
-    for idx, rollo in enumerate(rollos, 1):
+    for idx, rollo in enumerate(rollos_ordenados, 1):
         for num, pieza in enumerate(rollo.cortes, 1):
             datos.append({
                 "Rollo": f"#{idx}",
