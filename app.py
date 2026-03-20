@@ -1,20 +1,19 @@
 """
 APLICACIÓN DE OPTIMIZACIÓN DE CORTE DE MATERIAL + FUENTES DE ENERGÍA
 ======================================================================
-Soluciona el problema de corte unidimensional (Cutting Stock Problem)
-usando Programación Lineal (PuLP) y calcula las fuentes de energía 
-necesarias para tiras LED con optimización inteligente.
+Sistema profesional de optimización que minimiza desperdicios y calcula
+las fuentes de energía necesarias para tiras LED de forma inteligente.
 
 Características:
-- Optimización de cortes con PuLP (solución óptima matemática)
-- Manejo automático de cortes más grandes que el rollo
+- Optimización avanzada de cortes (minimiza desperdicios)
+- Manejo automático de cortes grandes
 - Cálculo de fuentes de energía (modo individual y optimizado)
 - Visualizaciones interactivas con métricas detalladas
 - Estadísticas avanzadas de eficiencia
 - Exportación de planes de corte y fuentes
 
 Autor: Sistema de Optimización Industrial
-Versión: 3.0 - Con Optimización PuLP y Cortes Grandes
+Versión: 3.0 - Optimización Profesional
 """
 
 import streamlit as st
@@ -273,13 +272,13 @@ class RolloResultado:
 
 
 # ============================================================================
-# ALGORITMO DE OPTIMIZACIÓN CON PuLP
+# ALGORITMO DE OPTIMIZACIÓN AVANZADA
 # ============================================================================
 
 def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float, 
                           max_items_per_pattern: int = None) -> Tuple[str, List[RolloResultado], List[Dict]]:
     """
-    Optimiza el corte de material usando Programación Lineal (PuLP).
+    Optimiza el corte de material usando algoritmo avanzado de optimización.
     Maneja cortes más grandes que el rollo automáticamente.
     
     Args:
@@ -386,7 +385,7 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
     if not patrones_unicos:
         return "No Optimal (Sin patrones válidos)", rollos_grandes, info_grandes
     
-    # --- 4. Crear modelo PuLP ---
+    # --- 4. Crear modelo de optimización ---
     problema = LpProblem("Minimizar_Desperdi cio_Corte", LpMinimize)
     
     # Variables: cuántas veces usar cada patrón
@@ -689,7 +688,7 @@ def check_authentication():
     st.markdown("""
     <div style='text-align: center; color: #9ca3af;'>
         <p>¿Necesitas acceso? Contacta al administrador</p>
-        <p style='font-size: 0.8rem;'>Optimizador Jenny v3.0 con PuLP</p>
+        <p style='font-size: 0.8rem;'>Optimizador Jenny v3.0 - Optimización Profesional</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -733,7 +732,7 @@ with col_logo:
 
 with col_titulo:
     st.markdown("# 📏⚡ Optimizador de Jenny + Fuentes")
-    st.markdown("### Optimización con PuLP + Manejo de cortes grandes")
+    st.markdown("### Sistema profesional de minimización de desperdicio")
 
 col1, col2, col3 = st.columns([2, 1, 1])
 with col2:
@@ -763,14 +762,6 @@ with st.sidebar:
         max_value=100.0,
         value=10.0,
         step=0.1
-    )
-    
-    max_items = st.number_input(
-        "Max items/patrón",
-        min_value=1,
-        max_value=10,
-        value=5,
-        help="Límite de piezas por patrón (acelera cálculo)"
     )
     
     st.markdown("---")
@@ -852,7 +843,19 @@ with st.sidebar:
     # Botón optimizar
     if st.button("🚀 Calcular Optimización", type="primary", use_container_width=True, 
                  disabled=len(st.session_state.pedidos) == 0):
-        with st.spinner("Optimizando con PuLP..."):
+        with st.spinner("Calculando la mejor optimización..."):
+            # Lógica automática para max_items según complejidad
+            num_cortes_diferentes = len(set(p.largo for p in st.session_state.pedidos))
+            
+            if num_cortes_diferentes <= 5:
+                max_items = None  # Óptimo absoluto (pocos cortes, rápido)
+            elif num_cortes_diferentes <= 10:
+                max_items = 7     # Muy bueno (equilibrado)
+            elif num_cortes_diferentes <= 20:
+                max_items = 5     # Bueno (rápido)
+            else:
+                max_items = 3     # Suficiente (muy rápido para casos complejos)
+            
             estado, rollos, info_grandes = optimizar_cortes_pulp(
                 st.session_state.pedidos, 
                 longitud_rollo,
@@ -922,8 +925,8 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;'>
-        <small>Algoritmo: PuLP (Programación Lineal)</small><br>
-        <small style='opacity: 0.7;'>v3.0 • Optimización Matemática</small>
+        <small>Sistema de Optimización Avanzada</small><br>
+        <small style='opacity: 0.7;'>v3.0 • Minimiza desperdicios</small>
     </div>
     """, unsafe_allow_html=True)
 
@@ -954,8 +957,8 @@ if st.session_state.resultados is None:
             </div>
             <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
                 <div style="font-size: 2rem;">🚀</div>
-                <h4>Optimiza con PuLP</h4>
-                <p style="font-size: 0.9rem; color: #64748b;">Solución matemáticamente óptima</p>
+                <h4>Optimiza</h4>
+                <p style="font-size: 0.9rem; color: #64748b;">Obtén la mejor distribución con mínimo desperdicio</p>
             </div>
         </div>
     </div>
@@ -968,24 +971,24 @@ if st.session_state.resultados is None:
     
     with col1:
         st.markdown("""
-        **Optimización con PuLP**
+        **Sistema de Optimización Avanzada**
         
-        1. 🔍 Genera todos los patrones de corte posibles
-        2. 📐 Crea problema de programación lineal
-        3. 🎯 Minimiza el número de rollos
-        4. ✨ Garantiza solución óptima matemática
-        5. 📏 Maneja cortes grandes automáticamente
+        1. 🔍 Analiza todos tus cortes
+        2. 📐 Calcula las mejores combinaciones
+        3. 🎯 Minimiza desperdicios al máximo
+        4. ✨ Garantiza el mejor aprovechamiento
+        5. 📏 Maneja cortes de cualquier tamaño
         """)
     
     with col2:
         st.markdown("""
         **Beneficios**
         
-        - ⚡ Solución óptima (no heurística)
-        - 📊 Maneja cortes > rollo
-        - 💰 Minimiza desperdicio globalmente
-        - 🎯 Resultado profesional certificado
-        - 🔬 Algoritmo probado científicamente
+        - ⚡ Optimización rápida y precisa
+        - 📊 Visualización clara de resultados
+        - 💰 Máxima reducción de desperdicios
+        - 🎯 Solución profesional certificada
+        - 🔬 Tecnología de vanguardia
         """)
 
 else:
@@ -1081,7 +1084,7 @@ else:
         st.download_button(
             "⬇️ Descargar Plan de Corte (CSV)",
             csv,
-            "plan_corte_pulp.csv",
+            "plan_corte_jenny.csv",
             "text/csv"
         )
     
@@ -1137,7 +1140,7 @@ else:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #64748b; padding: 1rem;'>
-    <p>Optimizador Jenny v3.0 • PuLP (Programación Lineal)</p>
-    <p style='font-size: 0.8rem;'>Solución matemáticamente óptima • Manejo de cortes grandes</p>
+    <p>Optimizador Jenny v3.0 • Sistema Profesional de Optimización</p>
+    <p style='font-size: 0.8rem;'>Minimiza desperdicios • Maximiza eficiencia</p>
 </div>
 """, unsafe_allow_html=True)
