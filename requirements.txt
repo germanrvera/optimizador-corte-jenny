@@ -2,4 +2,4 @@ streamlit>=1.31.0
 pandas>=2.0.0
 plotly>=5.18.0
 pillow>=10.0.0
-pulp>=2.7.0
+PuLP>=2.7.0
