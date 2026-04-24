@@ -310,11 +310,12 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
         else:
             cortes_para_optimizar[largo] = cortes_para_optimizar.get(largo, 0) + cantidad
     
-    # --- 2. Procesar cortes grandes y generar rollos con sobrantes ---
+    # --- 2. Procesar cortes grandes ---
+    # Para cada corte grande, se usan N-1 rollos completos y queda una "cola"
+    # Ejemplo: corte 6m en rollo 5m → 1 rollo completo de 5m + cola de 1m
     rollos_grandes = []
     info_grandes = []
-    # Lista de rollos con espacio disponible (los "sobrantes" que se pueden aprovechar)
-    rollos_con_sobrante = []  # [{rollo_idx, espacio_disponible}]
+    colas_pendientes = []  # Lista de colas de cortes grandes que necesitan completarse
     
     if cortes_grandes_externos:
         for corte_grande in cortes_grandes_externos:
@@ -326,27 +327,23 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                 rollos_necesarios = math.ceil(largo / longitud_rollo)
                 restante = largo
                 
-                for rollo_idx in range(rollos_necesarios):
-                    segmento = min(restante, longitud_rollo)
-                    espacio_libre = longitud_rollo - segmento
-                    
+                # Procesar los rollos COMPLETOS (todos menos el último)
+                for rollo_idx in range(rollos_necesarios - 1):
+                    # Rollo completo usado para el corte grande
                     rollo = RolloResultado(
                         rollo_id=f"GRANDE-{largo}m-P{pieza_idx+1}-R{rollo_idx+1}",
                         tipo_rollo=longitud_rollo,
-                        cortes=[segmento],
-                        desperdicio=espacio_libre,
+                        cortes=[longitud_rollo],
+                        desperdicio=0,
                         es_grande=True
                     )
                     rollos_grandes.append(rollo)
-                    
-                    # Si el último rollo tiene espacio sobrante, marcarlo como aprovechable
-                    if espacio_libre > 0 and rollo_idx == rollos_necesarios - 1:
-                        rollos_con_sobrante.append({
-                            "rollo_obj": rollo,
-                            "espacio_disponible": espacio_libre
-                        })
-                    
-                    restante -= segmento
+                    restante -= longitud_rollo
+                
+                # La "cola" es lo que queda al final (menor al rollo)
+                # Esta cola se intentará combinar con otros cortes
+                if restante > 0:
+                    colas_pendientes.append(restante)
             
             # Guardar info para mostrar
             rollos_por_pieza = math.ceil(largo / longitud_rollo)
@@ -357,58 +354,25 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                 "total_rollos": rollos_por_pieza * cantidad
             })
     
-    # --- 3. APROVECHAMIENTO DE SOBRANTES ---
-    # Intentar colocar cortes pequeños en los sobrantes de los cortes grandes
-    cortes_aprovechados_en_sobrantes = []  # Para contabilizar
+    # --- 3. COMBINAR COLAS CON CORTES NORMALES ---
+    # Las colas de cortes grandes + cortes normales se tratan TODOS juntos
+    # como cortes normales para ser optimizados por PuLP
+    cortes_para_optimizar_con_colas = dict(cortes_para_optimizar)
     
-    if rollos_con_sobrante and cortes_para_optimizar:
-        # Expandir cortes a lista individual ordenada de mayor a menor
-        cortes_individuales = []
-        for largo, cantidad in cortes_para_optimizar.items():
-            for _ in range(cantidad):
-                cortes_individuales.append(largo)
-        cortes_individuales.sort(reverse=True)
-        
-        # Ordenar sobrantes de mayor a menor (primero los más grandes)
-        rollos_con_sobrante.sort(key=lambda x: x["espacio_disponible"], reverse=True)
-        
-        # Intentar aprovechar cada sobrante
-        cortes_restantes = cortes_individuales.copy()
-        
-        for rollo_sobrante in rollos_con_sobrante:
-            espacio = rollo_sobrante["espacio_disponible"]
-            rollo_obj = rollo_sobrante["rollo_obj"]
-            
-            # Intentar colocar cortes en este sobrante (FFD)
-            i = 0
-            while i < len(cortes_restantes):
-                corte = cortes_restantes[i]
-                if corte <= espacio:
-                    # ¡Cabe! Aprovechamos el sobrante
-                    rollo_obj.cortes.append(corte)
-                    espacio -= corte
-                    rollo_obj.desperdicio = espacio
-                    rollo_obj.espacio_usado = sum(rollo_obj.cortes)
-                    cortes_aprovechados_en_sobrantes.append(corte)
-                    cortes_restantes.pop(i)
-                else:
-                    i += 1
-                
-                if espacio <= 0:
-                    break
-        
-        # Actualizar cortes_para_optimizar con los que no se aprovecharon
-        cortes_para_optimizar = {}
-        for corte in cortes_restantes:
-            cortes_para_optimizar[corte] = cortes_para_optimizar.get(corte, 0) + 1
+    for cola in colas_pendientes:
+        # Redondear para evitar problemas de precisión flotante
+        cola_redondeada = round(cola, 2)
+        cortes_para_optimizar_con_colas[cola_redondeada] = cortes_para_optimizar_con_colas.get(cola_redondeada, 0) + 1
     
-    # Si no hay cortes normales restantes, retornar solo los grandes
-    if not cortes_para_optimizar:
-        estado_final = "Optimal (Con aprovechamiento de sobrantes)" if cortes_aprovechados_en_sobrantes else "Optimal (Solo Cortes Grandes)"
-        return estado_final, rollos_grandes, info_grandes
+    # Si no hay nada que optimizar, retornar solo los rollos grandes
+    if not cortes_para_optimizar_con_colas:
+        return "Optimal (Solo Cortes Grandes)", rollos_grandes, info_grandes
+    
+    cortes_aprovechados_en_sobrantes = len(colas_pendientes)  # Para contabilizar
     
     # --- 4. Generar patrones de corte válidos ---
-    largos_unicos = sorted(list(cortes_para_optimizar.keys()), reverse=True)
+    # Incluye cortes normales + colas de cortes grandes
+    largos_unicos = sorted(list(cortes_para_optimizar_con_colas.keys()), reverse=True)
     
     def generar_patrones(largos_disponibles, largo_maximo, current_pattern=[], max_items=None):
         patrones = []
@@ -455,8 +419,8 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
     # Función objetivo: minimizar rollos
     problema += lpSum([x[i] for i in range(len(patrones_unicos))]), "Total_Rollos"
     
-    # Restricciones: cumplir todos los pedidos
-    for largo_req, cantidad_req in cortes_para_optimizar.items():
+    # Restricciones: cumplir todos los pedidos (normales + colas)
+    for largo_req, cantidad_req in cortes_para_optimizar_con_colas.items():
         problema += lpSum([
             x[i] * patrones_unicos[i].count(largo_req)
             for i in range(len(patrones_unicos))
@@ -493,8 +457,8 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
     todos_rollos = rollos_grandes + rollos_optimizados
     
     estado_final = estado
-    if cortes_aprovechados_en_sobrantes:
-        estado_final = f"Optimal (con {len(cortes_aprovechados_en_sobrantes)} cortes aprovechados de sobrantes)"
+    if cortes_aprovechados_en_sobrantes > 0:
+        estado_final = f"Optimal (con {cortes_aprovechados_en_sobrantes} colas integradas)"
     
     return estado_final, todos_rollos, info_grandes
 
