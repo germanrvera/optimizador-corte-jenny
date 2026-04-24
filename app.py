@@ -1226,24 +1226,13 @@ else:
             col1, col2, col3 = st.columns([3, 1, 1])
             
             with col1:
-                # Lista de piezas con formato mejorado
+                # Lista de piezas con formato mejorado (una sola línea)
+                chips_style = "display:inline-block;padding:0.25rem 0.75rem;margin:0.25rem 0.25rem 0.25rem 0;background:#f1f5f9;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#334155;font-weight:600;"
+                
                 piezas_html = ""
-                for i, pieza in enumerate(rollo.cortes, 1):
-                    piezas_html += f"""
-                    <span style="
-                        display: inline-block;
-                        padding: 0.25rem 0.75rem;
-                        margin: 0.25rem 0.25rem 0.25rem 0;
-                        background: #f1f5f9;
-                        border-radius: 6px;
-                        font-family: 'JetBrains Mono', monospace;
-                        font-size: 0.9rem;
-                        color: #334155;
-                        font-weight: 600;
-                    ">
-                        {pieza}m
-                    </span>
-                    """
+                for pieza in rollo.cortes:
+                    piezas_html += f'<span style="{chips_style}">{pieza}m</span>'
+                
                 st.markdown(f"**Piezas cortadas:**<br>{piezas_html}", unsafe_allow_html=True)
             
             with col2:
@@ -1348,3 +1337,4 @@ st.markdown("""
     <p style='font-size: 0.8rem;'>Minimiza desperdicios • Maximiza eficiencia</p>
 </div>
 """, unsafe_allow_html=True)
+
