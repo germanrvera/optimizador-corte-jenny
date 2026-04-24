@@ -1247,14 +1247,21 @@ else:
                 st.markdown(f"**Piezas cortadas:**<br>{piezas_html}", unsafe_allow_html=True)
             
             with col2:
-                st.metric("Eficiencia", f"{rollo.eficiencia:.1f}%")
+                st.metric("Eficiencia", f"{rollo.eficiencia:.1f}%", 
+                         label_visibility="visible")
             
             with col3:
-                st.metric("Desperdicio", f"{rollo.desperdicio:.2f}m")
+                st.metric("Desperdicio", f"{rollo.desperdicio:.2f}m",
+                         label_visibility="visible")
             
             # Visualización gráfica
             fig = crear_visualizacion_rollo_pulp(rollo, idx)
-            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(
+                fig, 
+                use_container_width=True, 
+                config={'displayModeBar': False},
+                key=f"rollo_chart_{idx}_{rollo.rollo_id}"
+            )
             
             st.markdown("<br>", unsafe_allow_html=True)
     
