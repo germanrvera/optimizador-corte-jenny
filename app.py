@@ -279,7 +279,12 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                           max_items_per_pattern: int = None) -> Tuple[str, List[RolloResultado], List[Dict]]:
     """
     Optimiza el corte de material usando algoritmo avanzado de optimización.
-    Maneja cortes más grandes que el rollo automáticamente.
+    
+    Estrategia:
+    1. Procesa cortes grandes (>rollo) dividiéndolos en segmentos
+    2. Identifica "sobrantes" aprovechables de los segmentos parciales
+    3. Intenta colocar cortes pequeños en esos sobrantes primero
+    4. Optimiza los cortes restantes con programación lineal
     
     Args:
         pedidos: Lista de objetos Pedido con largo y cantidad
@@ -305,9 +310,11 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
         else:
             cortes_para_optimizar[largo] = cortes_para_optimizar.get(largo, 0) + cantidad
     
-    # --- 2. Procesar cortes grandes ---
+    # --- 2. Procesar cortes grandes y generar rollos con sobrantes ---
     rollos_grandes = []
     info_grandes = []
+    # Lista de rollos con espacio disponible (los "sobrantes" que se pueden aprovechar)
+    rollos_con_sobrante = []  # [{rollo_idx, espacio_disponible}]
     
     if cortes_grandes_externos:
         for corte_grande in cortes_grandes_externos:
@@ -321,16 +328,24 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                 
                 for rollo_idx in range(rollos_necesarios):
                     segmento = min(restante, longitud_rollo)
-                    desperdicio_rollo = longitud_rollo - segmento
+                    espacio_libre = longitud_rollo - segmento
                     
                     rollo = RolloResultado(
                         rollo_id=f"GRANDE-{largo}m-P{pieza_idx+1}-R{rollo_idx+1}",
                         tipo_rollo=longitud_rollo,
                         cortes=[segmento],
-                        desperdicio=desperdicio_rollo,
+                        desperdicio=espacio_libre,
                         es_grande=True
                     )
                     rollos_grandes.append(rollo)
+                    
+                    # Si el último rollo tiene espacio sobrante, marcarlo como aprovechable
+                    if espacio_libre > 0 and rollo_idx == rollos_necesarios - 1:
+                        rollos_con_sobrante.append({
+                            "rollo_obj": rollo,
+                            "espacio_disponible": espacio_libre
+                        })
+                    
                     restante -= segmento
             
             # Guardar info para mostrar
@@ -342,11 +357,57 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                 "total_rollos": rollos_por_pieza * cantidad
             })
     
-    # Si no hay cortes normales, retornar solo los grandes
-    if not cortes_para_optimizar:
-        return "Optimal (Solo Cortes Grandes)", rollos_grandes, info_grandes
+    # --- 3. APROVECHAMIENTO DE SOBRANTES ---
+    # Intentar colocar cortes pequeños en los sobrantes de los cortes grandes
+    cortes_aprovechados_en_sobrantes = []  # Para contabilizar
     
-    # --- 3. Generar patrones de corte válidos ---
+    if rollos_con_sobrante and cortes_para_optimizar:
+        # Expandir cortes a lista individual ordenada de mayor a menor
+        cortes_individuales = []
+        for largo, cantidad in cortes_para_optimizar.items():
+            for _ in range(cantidad):
+                cortes_individuales.append(largo)
+        cortes_individuales.sort(reverse=True)
+        
+        # Ordenar sobrantes de mayor a menor (primero los más grandes)
+        rollos_con_sobrante.sort(key=lambda x: x["espacio_disponible"], reverse=True)
+        
+        # Intentar aprovechar cada sobrante
+        cortes_restantes = cortes_individuales.copy()
+        
+        for rollo_sobrante in rollos_con_sobrante:
+            espacio = rollo_sobrante["espacio_disponible"]
+            rollo_obj = rollo_sobrante["rollo_obj"]
+            
+            # Intentar colocar cortes en este sobrante (FFD)
+            i = 0
+            while i < len(cortes_restantes):
+                corte = cortes_restantes[i]
+                if corte <= espacio:
+                    # ¡Cabe! Aprovechamos el sobrante
+                    rollo_obj.cortes.append(corte)
+                    espacio -= corte
+                    rollo_obj.desperdicio = espacio
+                    rollo_obj.espacio_usado = sum(rollo_obj.cortes)
+                    cortes_aprovechados_en_sobrantes.append(corte)
+                    cortes_restantes.pop(i)
+                else:
+                    i += 1
+                
+                if espacio <= 0:
+                    break
+        
+        # Actualizar cortes_para_optimizar con los que no se aprovecharon
+        cortes_para_optimizar = {}
+        for corte in cortes_restantes:
+            cortes_para_optimizar[corte] = cortes_para_optimizar.get(corte, 0) + 1
+    
+    # Si no hay cortes normales restantes, retornar solo los grandes
+    if not cortes_para_optimizar:
+        estado_final = "Optimal (Con aprovechamiento de sobrantes)" if cortes_aprovechados_en_sobrantes else "Optimal (Solo Cortes Grandes)"
+        return estado_final, rollos_grandes, info_grandes
+    
+    # --- 4. Generar patrones de corte válidos ---
     largos_unicos = sorted(list(cortes_para_optimizar.keys()), reverse=True)
     
     def generar_patrones(largos_disponibles, largo_maximo, current_pattern=[], max_items=None):
@@ -385,8 +446,8 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
     if not patrones_unicos:
         return "No Optimal (Sin patrones válidos)", rollos_grandes, info_grandes
     
-    # --- 4. Crear modelo de optimización ---
-    problema = LpProblem("Minimizar_Desperdi cio_Corte", LpMinimize)
+    # --- 5. Crear modelo de optimización ---
+    problema = LpProblem("Minimizar_Desperdicio_Corte", LpMinimize)
     
     # Variables: cuántas veces usar cada patrón
     x = LpVariable.dicts("UsoPatron", range(len(patrones_unicos)), 0, None, LpInteger)
@@ -401,11 +462,11 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
             for i in range(len(patrones_unicos))
         ]) >= cantidad_req, f"Cumplir_Corte_{largo_req}"
     
-    # --- 5. Resolver ---
+    # --- 6. Resolver ---
     problema.solve()
     estado = LpStatus[problema.status]
     
-    # --- 6. Procesar resultados ---
+    # --- 7. Procesar resultados ---
     rollos_optimizados = []
     
     if estado == 'Optimal':
@@ -428,10 +489,14 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                     rollos_optimizados.append(rollo)
                     rollo_contador += 1
     
-    # --- 7. Combinar resultados ---
+    # --- 8. Combinar resultados ---
     todos_rollos = rollos_grandes + rollos_optimizados
     
-    return estado, todos_rollos, info_grandes
+    estado_final = estado
+    if cortes_aprovechados_en_sobrantes:
+        estado_final = f"Optimal (con {len(cortes_aprovechados_en_sobrantes)} cortes aprovechados de sobrantes)"
+    
+    return estado_final, todos_rollos, info_grandes
 
 
 # ============================================================================
@@ -562,58 +627,103 @@ def optimizar_fuentes_agrupadas(pedidos_list: List[Pedido],
 # ============================================================================
 
 def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Figure:
-    """Crea visualización horizontal de un rollo."""
+    """Crea visualización profesional horizontal de un rollo."""
     fig = go.Figure()
-    colores = ['#f97316', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b']
+    
+    # Paleta de colores profesional con gradientes
+    colores_base = [
+        '#f97316',  # Naranja vibrante
+        '#10b981',  # Verde esmeralda
+        '#3b82f6',  # Azul vibrante
+        '#8b5cf6',  # Violeta
+        '#ec4899',  # Rosa
+        '#14b8a6',  # Turquesa
+        '#f59e0b',  # Ámbar
+        '#6366f1',  # Índigo
+    ]
     
     posicion = 0
     for idx, corte in enumerate(rollo.cortes):
-        color = colores[idx % len(colores)]
+        color = colores_base[idx % len(colores_base)]
+        
+        # Calcular porcentaje del corte respecto al rollo
+        porcentaje = (corte / rollo.tipo_rollo) * 100
         
         fig.add_trace(go.Bar(
-            y=[f'Rollo {numero}'],
+            y=['Rollo'],
             x=[corte],
             orientation='h',
-            name=f'{corte}m',
-            marker=dict(color=color, line=dict(color='white', width=2)),
-            text=f'{corte}m',
+            name=f'Corte {idx+1}',
+            marker=dict(
+                color=color,
+                line=dict(color='white', width=3),
+                pattern=dict(shape="", fillmode="overlay")
+            ),
+            text=f'<b>{corte}m</b><br><span style="font-size:10px;opacity:0.9;">{porcentaje:.0f}%</span>',
             textposition='inside',
-            textfont=dict(color='white', size=12, family='JetBrains Mono'),
+            textfont=dict(color='white', size=14, family='Work Sans'),
+            hovertemplate=f'<b>Corte {idx+1}</b><br>Largo: {corte}m<br>% del rollo: {porcentaje:.1f}%<extra></extra>',
             base=posicion
         ))
         posicion += corte
     
-    # Desperdicio
+    # Desperdicio con diseño distintivo
     if rollo.desperdicio > 0:
+        porcentaje_desp = (rollo.desperdicio / rollo.tipo_rollo) * 100
+        
         fig.add_trace(go.Bar(
-            y=[f'Rollo {numero}'],
+            y=['Rollo'],
             x=[rollo.desperdicio],
             orientation='h',
             name='Desperdicio',
             marker=dict(
-                color='#e5e7eb',
-                pattern=dict(shape='/', fgcolor='#9ca3af', size=8),
-                line=dict(color='#6b7280', width=2)
+                color='#fef3c7',
+                pattern=dict(
+                    shape='/',
+                    fgcolor='#d97706',
+                    size=10,
+                    solidity=0.3
+                ),
+                line=dict(color='#f59e0b', width=3)
             ),
-            text=f'{rollo.desperdicio:.2f}m',
+            text=f'<b>✂️ {rollo.desperdicio:.2f}m</b><br><span style="font-size:10px;">{porcentaje_desp:.0f}%</span>',
             textposition='inside',
-            textfont=dict(color='#4b5563', size=11),
+            textfont=dict(color='#92400e', size=12, family='Work Sans'),
+            hovertemplate=f'<b>Desperdicio</b><br>{rollo.desperdicio:.2f}m<br>{porcentaje_desp:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
     
+    # Layout profesional
     fig.update_layout(
         barmode='stack',
         showlegend=False,
-        height=100,
-        margin=dict(l=10, r=10, t=10, b=10),
-        plot_bgcolor='rgba(0,0,0,0)',
+        height=140,
+        margin=dict(l=20, r=20, t=30, b=40),
+        plot_bgcolor='rgba(248, 250, 252, 0.5)',
+        paper_bgcolor='rgba(0,0,0,0)',
         xaxis=dict(
             range=[0, rollo.tipo_rollo],
             showgrid=True,
             gridcolor='#e5e7eb',
-            title="Longitud (m)"
+            gridwidth=1,
+            zeroline=True,
+            zerolinecolor='#cbd5e1',
+            zerolinewidth=2,
+            title=dict(
+                text=f"Metros (0 - {rollo.tipo_rollo:.0f}m)",
+                font=dict(size=11, color='#64748b', family='Work Sans')
+            ),
+            tickfont=dict(family='JetBrains Mono', size=10, color='#64748b'),
+            dtick=1 if rollo.tipo_rollo <= 10 else 2
         ),
-        yaxis=dict(showticklabels=False)
+        yaxis=dict(
+            showticklabels=False,
+            showgrid=False,
+            zeroline=False
+        ),
+        hovermode='closest',
+        font=dict(family='Work Sans'),
+        bargap=0.3
     )
     
     return fig
@@ -756,12 +866,11 @@ with st.sidebar:
     st.markdown("---")
     
     st.markdown("### 📐 Rollo Madre")
-    longitud_rollo = st.number_input(
-        "Longitud (metros)",
-        min_value=0.1,
-        max_value=100.0,
-        value=10.0,
-        step=0.1
+    longitud_rollo = st.selectbox(
+        "Longitud del rollo",
+        options=[5.0, 10.0, 20.0],
+        index=1,  # 10m por defecto
+        format_func=lambda x: f"{x:.0f} metros"
     )
     
     st.markdown("---")
@@ -1044,26 +1153,110 @@ else:
     rollos_ordenados = sorted(rollos, key=lambda r: r.desperdicio)
     
     for idx, rollo in enumerate(rollos_ordenados, 1):
+        # Determinar estado visual
+        if rollo.eficiencia >= 95:
+            badge_color = "#10b981"  # Verde
+            badge_text = "PERFECTO"
+            badge_icon = "✨"
+        elif rollo.eficiencia >= 80:
+            badge_color = "#3b82f6"  # Azul
+            badge_text = "EXCELENTE"
+            badge_icon = "✅"
+        elif rollo.eficiencia >= 60:
+            badge_color = "#f59e0b"  # Ámbar
+            badge_text = "BUENO"
+            badge_icon = "⚠️"
+        else:
+            badge_color = "#ef4444"  # Rojo
+            badge_text = "REVISAR"
+            badge_icon = "🔴"
+        
+        tipo_rollo = "Corte Grande" if rollo.es_grande else "Optimizado"
+        
         with st.container():
-            st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+            # Header de la tarjeta con diseño profesional
+            st.markdown(f"""
+            <div style="
+                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                border-left: 5px solid {badge_color};
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <span style="
+                            font-size: 1.4rem; 
+                            font-weight: 700; 
+                            color: #0f172a;
+                            font-family: 'Work Sans', sans-serif;
+                        ">
+                            Rollo #{idx}
+                        </span>
+                        <span style="
+                            margin-left: 0.75rem;
+                            padding: 0.25rem 0.75rem;
+                            background: {badge_color}20;
+                            color: {badge_color};
+                            border-radius: 20px;
+                            font-size: 0.75rem;
+                            font-weight: 600;
+                            letter-spacing: 0.05em;
+                        ">
+                            {badge_icon} {badge_text}
+                        </span>
+                        <span style="
+                            margin-left: 0.5rem;
+                            padding: 0.25rem 0.75rem;
+                            background: #e2e8f0;
+                            color: #475569;
+                            border-radius: 20px;
+                            font-size: 0.75rem;
+                            font-weight: 500;
+                        ">
+                            {tipo_rollo}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            col1, col2, col3 = st.columns([2, 1, 1])
+            # Métricas y visualización
+            col1, col2, col3 = st.columns([3, 1, 1])
+            
             with col1:
-                tipo = "GRANDE" if rollo.es_grande else "OPTIMIZADO"
-                st.markdown(f"**Rollo #{idx}** ({tipo})")
-                st.caption(f"Piezas: {', '.join([f'{c}m' for c in rollo.cortes])}")
+                # Lista de piezas con formato mejorado
+                piezas_html = ""
+                for i, pieza in enumerate(rollo.cortes, 1):
+                    piezas_html += f"""
+                    <span style="
+                        display: inline-block;
+                        padding: 0.25rem 0.75rem;
+                        margin: 0.25rem 0.25rem 0.25rem 0;
+                        background: #f1f5f9;
+                        border-radius: 6px;
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 0.9rem;
+                        color: #334155;
+                        font-weight: 600;
+                    ">
+                        {pieza}m
+                    </span>
+                    """
+                st.markdown(f"**Piezas cortadas:**<br>{piezas_html}", unsafe_allow_html=True)
             
             with col2:
-                efic_color = "🟢" if rollo.eficiencia >= 80 else "🟡" if rollo.eficiencia >= 60 else "🔴"
-                st.metric("Eficiencia", f"{rollo.eficiencia:.1f}%", efic_color)
+                st.metric("Eficiencia", f"{rollo.eficiencia:.1f}%")
             
             with col3:
                 st.metric("Desperdicio", f"{rollo.desperdicio:.2f}m")
             
+            # Visualización gráfica
             fig = crear_visualizacion_rollo_pulp(rollo, idx)
             st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
     
     # Tabla detallada
     st.markdown("---")
