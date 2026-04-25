@@ -43,28 +43,37 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     :root {
         --brand: #7c3aed;
         --brand-light: #ede9fe;
         --brand-dark: #6d28d9;
-        --bg: #f9fafb;
+        --bg: #eef0f4;
         --white: #ffffff;
         --text: #111827;
         --text-muted: #6b7280;
-        --border: #e5e7eb;
+        --border: #d1d5db;
         --radius: 12px;
         --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
     }
 
-    /* Base */
+    /* Base - un solo font en toda la app */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
         background-color: var(--bg) !important;
         color: var(--text) !important;
     }
     .main { background-color: var(--bg) !important; }
+
+    /* Eliminar DM Mono de todos lados - usar Plus Jakarta Sans */
+    .stNumberInput > div > div > input,
+    .stTextInput > div > div > input,
+    [data-testid="stMetricValue"],
+    .dataframe tbody tr td,
+    code {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
 
     /* Logo */
     img {
@@ -91,12 +100,13 @@ st.markdown("""
         box-shadow: var(--shadow) !important;
     }
     [data-testid="stMetricValue"] {
-        font-family: 'DM Mono', monospace !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-size: 2rem !important;
-        font-weight: 500 !important;
+        font-weight: 700 !important;
         color: var(--brand) !important;
     }
     [data-testid="stMetricLabel"] {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-size: 0.75rem !important;
         font-weight: 600 !important;
         color: var(--text-muted) !important;
@@ -141,11 +151,11 @@ st.markdown("""
         border: 1.5px solid var(--border) !important;
         border-radius: 8px !important;
         padding: 0.6rem 0.875rem !important;
-        font-family: 'DM Mono', monospace !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-size: 1rem !important;
         color: var(--text) !important;
         background: var(--white) !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
     }
     .stNumberInput > div > div > input:focus,
@@ -230,7 +240,7 @@ st.markdown("""
     }
     .dataframe tbody tr td {
         padding: 0.6rem 1rem !important;
-        font-family: 'DM Mono', monospace !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
         font-size: 0.875rem !important;
     }
     .dataframe tbody tr:hover { background: var(--brand-light) !important; }
@@ -701,7 +711,7 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
             ),
             text=f'<b style="font-family:Fraunces,serif;font-size:18px;">{corte}m</b>',
             textposition='inside',
-            textfont=dict(color=text_color, size=16, family='Fraunces'),
+            textfont=dict(color=text_color, size=16, family='Plus Jakarta Sans'),
             hovertemplate=f'<b>Corte {idx+1}</b><br>Largo: {corte}m<br>{porcentaje:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
@@ -728,7 +738,7 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
             ),
             text=f'<b>{rollo.desperdicio:.2f}m</b>',
             textposition='inside',
-            textfont=dict(color='#0a0a0a', size=13, family='JetBrains Mono'),
+            textfont=dict(color='#0a0a0a', size=13, family='Plus Jakarta Sans'),
             hovertemplate=f'<b>Desperdicio</b><br>{rollo.desperdicio:.2f}m<br>{porcentaje_desp:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
@@ -739,28 +749,28 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
         showlegend=False,
         height=120,
         margin=dict(l=20, r=20, t=20, b=40),
-        plot_bgcolor='#faf7f0',
+        plot_bgcolor='#ffffff',
         paper_bgcolor='rgba(0,0,0,0)',
         xaxis=dict(
             range=[0, rollo.tipo_rollo],
             showgrid=True,
-            gridcolor='#0a0a0a',
+            gridcolor='#e5e7eb',
             gridwidth=1,
             zeroline=True,
-            zerolinecolor='#0a0a0a',
-            zerolinewidth=3,
+            zerolinecolor='#d1d5db',
+            zerolinewidth=2,
             title=dict(
                 text=f"ESCALA: 0 — {rollo.tipo_rollo:.0f}m",
-                font=dict(size=10, color='#3d3d3d', family='Manrope')
+                font=dict(size=10, color='#9ca3af', family='Plus Jakarta Sans')
             ),
-            tickfont=dict(family='JetBrains Mono', size=10, color='#3d3d3d'),
+            tickfont=dict(family='Plus Jakarta Sans', size=11, color='#6b7280'),
             dtick=1 if rollo.tipo_rollo <= 10 else 2,
             showline=True,
-            linecolor='#0a0a0a',
+            linecolor='#d1d5db',
             linewidth=2,
             ticks='outside',
-            ticklen=6,
-            tickcolor='#0a0a0a'
+            ticklen=5,
+            tickcolor='#d1d5db'
         ),
         yaxis=dict(
             showticklabels=False,
@@ -768,7 +778,7 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
             zeroline=False
         ),
         hovermode='closest',
-        font=dict(family='Manrope'),
+        font=dict(family='Plus Jakarta Sans'),
         bargap=0.2
     )
     
@@ -1291,6 +1301,10 @@ else:
                 "plan_fuentes.csv",
                 "text/csv"
             )
+
+# Footer
+st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;">Optimizador Jenny v3.0 · Minimiza desperdicios · Maximiza eficiencia</p>', unsafe_allow_html=True)
 
 # Footer
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
