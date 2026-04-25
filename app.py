@@ -1221,3 +1221,4 @@ else:
 # Footer
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;">Optimizador Jenny v3.0 · Minimiza desperdicios · Maximiza eficiencia</p>', unsafe_allow_html=True)
+
