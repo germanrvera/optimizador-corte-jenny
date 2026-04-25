@@ -43,175 +43,414 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    /* ============================================
+       INDUSTRIAL EDITORIAL - Instrumento de Corte
+       Inspiración: Dieter Rams + Swiss Editorial
+       ============================================ */
+    
+    /* Importar tipografías distintivas */
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+    
+    /* Variables - Paleta Industrial */
+    :root {
+        --ink: #0a0a0a;              /* Negro tinta */
+        --paper: #f5f1e8;            /* Papel industrial (beige) */
+        --paper-light: #faf7f0;      /* Papel más claro */
+        --line: #1a1a1a;             /* Líneas técnicas */
+        --signal: #ff4500;           /* Naranja señalización */
+        --signal-dark: #cc3700;      /* Naranja oscuro */
+        --tape: #ffcc00;             /* Amarillo cinta métrica */
+        --graphite: #3d3d3d;         /* Grafito */
+        --graphite-light: #6b6b6b;   /* Grafito claro */
+        --grid: rgba(10, 10, 10, 0.08); /* Líneas de grid */
+    }
+    
     /* Logo con fondo blanco */
     img {
         background: white !important;
-        background-color: white !important;
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 12px;
+        border: 2px solid var(--ink);
+        border-radius: 0;
+        box-shadow: 4px 4px 0 var(--ink);
     }
     
-    /* Contenedor de imágenes sin fondo */
     [data-testid="stImage"] {
         background: transparent !important;
     }
     
-    /* Importar fuentes distintivas */
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Work+Sans:wght@300;500;700&display=swap');
+    /* Fondo principal - papel industrial con grid */
+    .main {
+        background: var(--paper);
+        background-image: 
+            linear-gradient(var(--grid) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
     
-    /* Variables CSS */
-    :root {
-        --primary-color: #0f172a;
-        --secondary-color: #475569;
-        --accent-color: #f97316;
-        --success-color: #10b981;
-        --warning-color: #f59e0b;
-        --bg-color: #f8fafc;
-        --card-bg: #ffffff;
+    .stApp {
+        background: var(--paper);
     }
     
     /* Tipografía general */
     html, body, [class*="css"] {
-        font-family: 'Work Sans', sans-serif;
-        color: var(--primary-color);
+        font-family: 'Manrope', -apple-system, sans-serif;
+        color: var(--ink);
     }
     
-    /* Títulos */
-    h1, h2, h3 {
-        font-family: 'Work Sans', sans-serif;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-    }
-    
+    /* Títulos con serif editorial */
     h1 {
-        color: var(--primary-color);
-        font-size: 2.5rem !important;
-        margin-bottom: 0.5rem !important;
+        font-family: 'Fraunces', Georgia, serif !important;
+        font-weight: 900 !important;
+        font-size: 3rem !important;
+        letter-spacing: -0.03em !important;
+        color: var(--ink) !important;
+        line-height: 1 !important;
+        margin-bottom: 0.25rem !important;
     }
     
-    /* Código y números */
-    code, .stNumberInput input, .metric-value {
-        font-family: 'JetBrains Mono', monospace !important;
-    }
-    
-    /* Fondo de la aplicación */
-    .main {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    }
-    
-    /* Tarjetas personalizadas */
-    .custom-card {
-        background: var(--card-bg);
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        border-left: 4px solid var(--accent-color);
-        margin-bottom: 1rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .custom-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    
-    /* Métricas personalizadas */
-    [data-testid="stMetricValue"] {
-        font-size: 2rem !important;
+    h2 {
+        font-family: 'Fraunces', Georgia, serif !important;
         font-weight: 700 !important;
-        color: var(--accent-color) !important;
-        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 2rem !important;
+        letter-spacing: -0.02em !important;
+        color: var(--ink) !important;
+        margin-top: 2rem !important;
+    }
+    
+    h3 {
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 1rem !important;
+        letter-spacing: 0.15em !important;
+        text-transform: uppercase !important;
+        color: var(--ink) !important;
+        border-bottom: 2px solid var(--ink) !important;
+        padding-bottom: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    h4 {
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 0.1em !important;
+        text-transform: uppercase !important;
+        color: var(--graphite) !important;
+    }
+    
+    /* Números y código en monoespaciada */
+    code, .stNumberInput input, [data-testid="stMetricValue"] {
+        font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+    
+    /* Métricas con estilo editorial */
+    [data-testid="stMetricValue"] {
+        font-family: 'Fraunces', serif !important;
+        font-size: 2.5rem !important;
+        font-weight: 900 !important;
+        color: var(--ink) !important;
+        letter-spacing: -0.03em !important;
+        line-height: 1 !important;
     }
     
     [data-testid="stMetricLabel"] {
-        font-size: 0.9rem !important;
-        font-weight: 500 !important;
-        color: var(--secondary-color) !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-family: 'Manrope', sans-serif !important;
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        color: var(--graphite) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.2em !important;
+        margin-bottom: 0.5rem !important;
     }
     
-    /* Botones */
+    [data-testid="stMetricDelta"] {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.75rem !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Contenedor de métricas */
+    [data-testid="stMetric"] {
+        background: var(--paper-light);
+        border: 2px solid var(--ink);
+        padding: 1.25rem !important;
+        position: relative;
+    }
+    
+    [data-testid="stMetric"]::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 20px;
+        height: 20px;
+        background: var(--signal);
+    }
+    
+    /* Botones - Estilo industrial */
     .stButton > button {
-        background: linear-gradient(135deg, var(--accent-color) 0%, #ea580c 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+        background: var(--ink) !important;
+        color: var(--paper) !important;
+        border: 2px solid var(--ink) !important;
+        padding: 0.875rem 2rem !important;
+        border-radius: 0 !important;
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 800 !important;
+        font-size: 0.85rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.15em !important;
+        box-shadow: 4px 4px 0 var(--ink) !important;
+        transition: all 0.15s ease !important;
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.4);
-        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        background: var(--signal) !important;
+        color: var(--ink) !important;
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 var(--ink) !important;
+    }
+    
+    .stButton > button:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink) !important;
+    }
+    
+    /* Botón primario */
+    .stButton > button[kind="primary"] {
+        background: var(--signal) !important;
+        color: var(--ink) !important;
+        border-color: var(--ink) !important;
+    }
+    
+    .stButton > button[kind="primary"]:hover {
+        background: var(--tape) !important;
     }
     
     /* Inputs */
-    .stNumberInput > div > div > input {
-        border-radius: 8px;
-        border: 2px solid #e2e8f0;
-        padding: 0.75rem;
-        font-size: 1rem;
-        transition: border-color 0.2s ease;
-        color: #0f172a !important;
-        background-color: #ffffff !important;
+    .stNumberInput > div > div > input,
+    .stTextInput > div > div > input {
+        border: 2px solid var(--ink) !important;
+        border-radius: 0 !important;
+        padding: 0.75rem !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 1.1rem !important;
+        color: var(--ink) !important;
+        background: var(--paper-light) !important;
         font-weight: 600 !important;
     }
     
-    /* Forzar color en inputs del sidebar */
-    [data-testid="stSidebar"] .stNumberInput > div > div > input {
-        color: #0f172a !important;
-        background-color: #ffffff !important;
+    .stNumberInput > div > div > input:focus,
+    .stTextInput > div > div > input:focus {
+        border-color: var(--signal) !important;
+        box-shadow: 4px 4px 0 var(--signal) !important;
+        outline: none !important;
+    }
+    
+    /* Selectbox */
+    .stSelectbox > div > div {
+        border: 2px solid var(--ink) !important;
+        border-radius: 0 !important;
+        background: var(--paper-light) !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] > div {
+        font-family: 'JetBrains Mono', monospace !important;
         font-weight: 600 !important;
-    }
-    
-    /* Labels de inputs en sidebar */
-    [data-testid="stSidebar"] label {
-        color: #ffffff !important;
-    }
-    
-    .stNumberInput > div > div > input:focus {
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-    }
-    
-    /* Tablas */
-    .dataframe {
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        color: var(--ink) !important;
     }
     
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, var(--primary-color) 0%, #1e293b 100%);
+        background: var(--ink) !important;
+        border-right: 4px solid var(--signal);
     }
     
-    /* Solo títulos y textos en blanco, NO inputs */
+    [data-testid="stSidebar"] > div {
+        padding-top: 2rem;
+    }
+    
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
     [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] h4,
+    [data-testid="stSidebar"] h4 {
+        color: var(--paper) !important;
+        border-color: var(--signal) !important;
+    }
+    
     [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] span:not(.stNumberInput span),
     [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] .stMarkdown {
-        color: white !important;
+    [data-testid="stSidebar"] .stMarkdown,
+    [data-testid="stSidebar"] span:not(.stNumberInput span) {
+        color: var(--paper) !important;
     }
     
-    /* Alertas */
+    [data-testid="stSidebar"] label {
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.15em !important;
+        color: var(--tape) !important;
+    }
+    
+    [data-testid="stSidebar"] .stNumberInput > div > div > input,
+    [data-testid="stSidebar"] .stTextInput > div > div > input {
+        background: var(--paper-light) !important;
+        color: var(--ink) !important;
+        border: 2px solid var(--paper) !important;
+    }
+    
+    [data-testid="stSidebar"] .stSelectbox > div > div {
+        background: var(--paper-light) !important;
+        border: 2px solid var(--paper) !important;
+    }
+    
+    /* Dataframes */
+    .dataframe {
+        border: 2px solid var(--ink) !important;
+        border-radius: 0 !important;
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+    
+    .dataframe thead tr th {
+        background: var(--ink) !important;
+        color: var(--paper) !important;
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        font-size: 0.75rem !important;
+        letter-spacing: 0.1em !important;
+        padding: 0.75rem !important;
+        border: none !important;
+    }
+    
+    .dataframe tbody tr td {
+        font-family: 'JetBrains Mono', monospace !important;
+        padding: 0.5rem 0.75rem !important;
+        border-top: 1px solid var(--grid) !important;
+    }
+    
+    .dataframe tbody tr:hover {
+        background: var(--tape) !important;
+    }
+    
+    /* Alertas - estilo editorial */
     .stAlert {
-        border-radius: 8px;
-        border-left: 4px solid;
+        border-radius: 0 !important;
+        border: 2px solid var(--ink) !important;
+        border-left: 8px solid var(--signal) !important;
+        background: var(--paper-light) !important;
+        font-family: 'Manrope', sans-serif !important;
+        box-shadow: 4px 4px 0 var(--ink);
     }
     
-    /* Animaciones */
-    @keyframes slideIn {
+    /* Info alerts */
+    [data-baseweb="notification"] {
+        border-radius: 0 !important;
+        font-family: 'Manrope', sans-serif !important;
+    }
+    
+    /* Divisor editorial */
+    .custom-divider {
+        height: 4px;
+        background: var(--ink);
+        margin: 3rem 0 2rem 0;
+        position: relative;
+    }
+    
+    .custom-divider::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: -2px;
+        width: 60px;
+        height: 8px;
+        background: var(--signal);
+    }
+    
+    /* Hr personalizado */
+    hr {
+        border: none !important;
+        border-top: 2px solid var(--ink) !important;
+        margin: 2rem 0 !important;
+    }
+    
+    /* Tarjetas con estilo Rams/Swiss */
+    .ruler-card {
+        background: var(--paper-light);
+        border: 2px solid var(--ink);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        box-shadow: 6px 6px 0 var(--ink);
+        transition: all 0.15s ease;
+    }
+    
+    .ruler-card:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0 var(--ink);
+    }
+    
+    /* Badge editorial */
+    .editorial-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        font-family: 'Manrope', sans-serif;
+        font-weight: 800;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        border: 2px solid var(--ink);
+        background: var(--paper-light);
+    }
+    
+    .badge-signal {
+        background: var(--signal);
+        color: var(--ink);
+    }
+    
+    .badge-tape {
+        background: var(--tape);
+        color: var(--ink);
+    }
+    
+    .badge-ink {
+        background: var(--ink);
+        color: var(--paper);
+    }
+    
+    /* Chips de piezas - estilo ticket */
+    .piece-chip {
+        display: inline-block;
+        padding: 0.4rem 0.9rem;
+        margin: 0.25rem 0.25rem 0.25rem 0;
+        background: var(--paper-light);
+        border: 2px solid var(--ink);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--ink);
+        position: relative;
+    }
+    
+    /* Texto caption */
+    .stCaption, [data-testid="stCaptionContainer"] {
+        font-family: 'Manrope', sans-serif !important;
+        font-weight: 500 !important;
+        color: var(--graphite-light) !important;
+        font-size: 0.8rem !important;
+    }
+    
+    /* Markdown text */
+    .stMarkdown p {
+        font-family: 'Manrope', sans-serif !important;
+        color: var(--ink) !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Animación sutil al cargar */
+    @keyframes slideUp {
         from {
             opacity: 0;
             transform: translateY(20px);
@@ -222,16 +461,30 @@ st.markdown("""
         }
     }
     
-    .custom-card {
-        animation: slideIn 0.4s ease-out;
+    .ruler-card {
+        animation: slideUp 0.3s ease-out;
     }
     
-    /* Divisor decorativo */
-    .custom-divider {
-        height: 3px;
-        background: linear-gradient(90deg, var(--accent-color) 0%, transparent 100%);
-        margin: 2rem 0;
-        border-radius: 2px;
+    /* Contenedor de descarga */
+    [data-testid="stDownloadButton"] > button {
+        background: var(--paper-light) !important;
+        color: var(--ink) !important;
+        border: 2px solid var(--ink) !important;
+        box-shadow: 3px 3px 0 var(--ink) !important;
+    }
+    
+    [data-testid="stDownloadButton"] > button:hover {
+        background: var(--tape) !important;
+    }
+    
+    /* Checkboxes y radios */
+    .stCheckbox, .stRadio {
+        font-family: 'Manrope', sans-serif !important;
+    }
+    
+    /* Slider */
+    .stSlider [data-baseweb="slider"] > div {
+        background: var(--graphite) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -591,27 +844,28 @@ def optimizar_fuentes_agrupadas(pedidos_list: List[Pedido],
 # ============================================================================
 
 def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Figure:
-    """Crea visualización profesional horizontal de un rollo."""
+    """Crea visualización estilo instrumento de medición industrial."""
     fig = go.Figure()
     
-    # Paleta de colores profesional con gradientes
-    colores_base = [
-        '#f97316',  # Naranja vibrante
-        '#10b981',  # Verde esmeralda
-        '#3b82f6',  # Azul vibrante
-        '#8b5cf6',  # Violeta
-        '#ec4899',  # Rosa
-        '#14b8a6',  # Turquesa
-        '#f59e0b',  # Ámbar
-        '#6366f1',  # Índigo
+    # Paleta industrial - como cinta métrica
+    colores_industriales = [
+        '#ff4500',  # Signal orange
+        '#1a1a1a',  # Ink
+        '#ffcc00',  # Tape yellow
+        '#3d3d3d',  # Graphite
+        '#cc3700',  # Signal dark
+        '#6b6b6b',  # Graphite light
+        '#ff6b35',  # Orange medium
+        '#2d2d2d',  # Dark gray
     ]
     
     posicion = 0
     for idx, corte in enumerate(rollo.cortes):
-        color = colores_base[idx % len(colores_base)]
-        
-        # Calcular porcentaje del corte respecto al rollo
+        color = colores_industriales[idx % len(colores_industriales)]
         porcentaje = (corte / rollo.tipo_rollo) * 100
+        
+        # Color del texto según el color de fondo
+        text_color = '#f5f1e8' if color in ['#1a1a1a', '#3d3d3d', '#2d2d2d', '#cc3700'] else '#0a0a0a'
         
         fig.add_trace(go.Bar(
             y=['Rollo'],
@@ -620,18 +874,17 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
             name=f'Corte {idx+1}',
             marker=dict(
                 color=color,
-                line=dict(color='white', width=3),
-                pattern=dict(shape="", fillmode="overlay")
+                line=dict(color='#0a0a0a', width=2)
             ),
-            text=f'<b>{corte}m</b><br><span style="font-size:10px;opacity:0.9;">{porcentaje:.0f}%</span>',
+            text=f'<b style="font-family:Fraunces,serif;font-size:18px;">{corte}m</b>',
             textposition='inside',
-            textfont=dict(color='white', size=14, family='Work Sans'),
-            hovertemplate=f'<b>Corte {idx+1}</b><br>Largo: {corte}m<br>% del rollo: {porcentaje:.1f}%<extra></extra>',
+            textfont=dict(color=text_color, size=16, family='Fraunces'),
+            hovertemplate=f'<b>Corte {idx+1}</b><br>Largo: {corte}m<br>{porcentaje:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
         posicion += corte
     
-    # Desperdicio con diseño distintivo
+    # Desperdicio con estilo de cinta
     if rollo.desperdicio > 0:
         porcentaje_desp = (rollo.desperdicio / rollo.tipo_rollo) * 100
         
@@ -641,44 +894,50 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
             orientation='h',
             name='Desperdicio',
             marker=dict(
-                color='#fef3c7',
+                color='#faf7f0',
                 pattern=dict(
                     shape='/',
-                    fgcolor='#d97706',
-                    size=10,
-                    solidity=0.3
+                    fgcolor='#1a1a1a',
+                    size=8,
+                    solidity=0.4
                 ),
-                line=dict(color='#f59e0b', width=3)
+                line=dict(color='#0a0a0a', width=2)
             ),
-            text=f'<b>✂️ {rollo.desperdicio:.2f}m</b><br><span style="font-size:10px;">{porcentaje_desp:.0f}%</span>',
+            text=f'<b>{rollo.desperdicio:.2f}m</b>',
             textposition='inside',
-            textfont=dict(color='#92400e', size=12, family='Work Sans'),
+            textfont=dict(color='#0a0a0a', size=13, family='JetBrains Mono'),
             hovertemplate=f'<b>Desperdicio</b><br>{rollo.desperdicio:.2f}m<br>{porcentaje_desp:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
     
-    # Layout profesional
+    # Layout estilo regla técnica
     fig.update_layout(
         barmode='stack',
         showlegend=False,
-        height=140,
-        margin=dict(l=20, r=20, t=30, b=40),
-        plot_bgcolor='rgba(248, 250, 252, 0.5)',
+        height=120,
+        margin=dict(l=20, r=20, t=20, b=40),
+        plot_bgcolor='#faf7f0',
         paper_bgcolor='rgba(0,0,0,0)',
         xaxis=dict(
             range=[0, rollo.tipo_rollo],
             showgrid=True,
-            gridcolor='#e5e7eb',
+            gridcolor='#0a0a0a',
             gridwidth=1,
             zeroline=True,
-            zerolinecolor='#cbd5e1',
-            zerolinewidth=2,
+            zerolinecolor='#0a0a0a',
+            zerolinewidth=3,
             title=dict(
-                text=f"Metros (0 - {rollo.tipo_rollo:.0f}m)",
-                font=dict(size=11, color='#64748b', family='Work Sans')
+                text=f"ESCALA: 0 — {rollo.tipo_rollo:.0f}m",
+                font=dict(size=10, color='#3d3d3d', family='Manrope')
             ),
-            tickfont=dict(family='JetBrains Mono', size=10, color='#64748b'),
-            dtick=1 if rollo.tipo_rollo <= 10 else 2
+            tickfont=dict(family='JetBrains Mono', size=10, color='#3d3d3d'),
+            dtick=1 if rollo.tipo_rollo <= 10 else 2,
+            showline=True,
+            linecolor='#0a0a0a',
+            linewidth=2,
+            ticks='outside',
+            ticklen=6,
+            tickcolor='#0a0a0a'
         ),
         yaxis=dict(
             showticklabels=False,
@@ -686,8 +945,8 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
             zeroline=False
         ),
         hovermode='closest',
-        font=dict(family='Work Sans'),
-        bargap=0.3
+        font=dict(family='Manrope'),
+        bargap=0.2
     )
     
     return fig
@@ -712,10 +971,43 @@ def check_authentication():
     if st.session_state.authenticated:
         return True
     
+    # Header editorial de login
     st.markdown("""
-    <div style='text-align: center; padding: 2rem;'>
-        <h1 style='color: #1f2937;'>🔐 Acceso al Optimizador de Jenny</h1>
-        <p style='color: #6b7280; font-size: 1.1rem;'>Ingresa tu email autorizado</p>
+    <div style='padding: 3rem 0 2rem 0;'>
+        <div style="
+            display: inline-block;
+            background: #0a0a0a;
+            color: #ffcc00;
+            padding: 0.3rem 0.8rem;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        ">
+            ACCESO RESTRINGIDO
+        </div>
+        <h1 style="
+            font-family: 'Fraunces', serif !important;
+            font-size: 4rem !important;
+            font-weight: 900 !important;
+            color: #0a0a0a !important;
+            line-height: 0.95 !important;
+            letter-spacing: -0.04em !important;
+            margin: 0 0 1rem 0 !important;
+        ">
+            Optimizador<br><span style="color: #ff4500;">Jenny</span>
+        </h1>
+        <p style="
+            font-family: 'Manrope', sans-serif;
+            font-size: 1rem;
+            color: #3d3d3d;
+            margin: 0;
+            font-weight: 500;
+        ">
+            Instrumento profesional de corte y optimización
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -734,10 +1026,24 @@ def check_authentication():
     # Login
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        email_input = st.text_input("📧 Email", placeholder="tu-email@ejemplo.com")
+        st.markdown("""
+        <div style="
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: 0.7rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #0a0a0a;
+            margin-bottom: 0.5rem;
+        ">
+            Correo Autorizado
+        </div>
+        """, unsafe_allow_html=True)
+        
+        email_input = st.text_input("Email", placeholder="operador@jenny.com", label_visibility="collapsed")
         st.markdown("<br>", unsafe_allow_html=True)
         
-        if st.button("🚀 Ingresar al Sistema", type="primary", use_container_width=True):
+        if st.button("INGRESAR AL SISTEMA", type="primary", use_container_width=True):
             if email_input:
                 email = email_input.strip().lower()
                 
@@ -746,23 +1052,34 @@ def check_authentication():
                     EMAILS_AUTORIZADOS = [e.strip().lower() for e in emails_str.split(',') if e.strip()]
                 except:
                     EMAILS_AUTORIZADOS = ["admin@jenny.com", "gerencia@jenny.com", "ejemplo@gmail.com"]
-                    st.warning("⚠️ Usando emails de prueba")
+                    st.warning("Usando emails de prueba")
                 
                 if email in EMAILS_AUTORIZADOS:
                     st.session_state.authenticated = True
                     st.session_state.user_email = email
-                    st.success(f"✅ Acceso concedido para {email}")
+                    st.success(f"Acceso concedido · {email}")
                     st.rerun()
                 else:
-                    st.error("❌ Email no autorizado")
+                    st.error("Email no autorizado")
             else:
-                st.warning("⚠️ Ingresa un email válido")
+                st.warning("Ingresa un email válido")
     
-    st.markdown("---")
     st.markdown("""
-    <div style='text-align: center; color: #9ca3af;'>
-        <p>¿Necesitas acceso? Contacta al administrador</p>
-        <p style='font-size: 0.8rem;'>Optimizador Jenny v3.0 - Optimización Profesional</p>
+    <div style="
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #0a0a0a;
+        text-align: center;
+    ">
+        <p style="
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #6b6b6b;
+            letter-spacing: 0.1em;
+            margin: 0;
+        ">
+            v3.0 · INSTRUMENTO INDUSTRIAL
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -800,19 +1117,83 @@ with col_logo:
     try:
         if os.path.exists("logo.png"):
             logo = Image.open("logo.png")
-            st.image(logo, width=150)
+            st.image(logo, width=140)
     except:
-        st.markdown("### 📏")
+        st.markdown("""
+        <div style="
+            width: 100px;
+            height: 100px;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fraunces', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: #f5f1e8;
+            border: 3px solid #0a0a0a;
+            box-shadow: 6px 6px 0 #ff4500;
+        ">
+            J
+        </div>
+        """, unsafe_allow_html=True)
 
 with col_titulo:
-    st.markdown("# 📏⚡ Optimizador de Jenny + Fuentes")
-    st.markdown("### Sistema profesional de minimización de desperdicio")
+    st.markdown("""
+    <div style="margin-top: 0.5rem;">
+        <div style="
+            display: inline-block;
+            background: #0a0a0a;
+            color: #ffcc00;
+            padding: 0.2rem 0.75rem;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        ">
+            INSTRUMENTO DE CORTE · JENNY
+        </div>
+        <h1 style="
+            font-family: 'Fraunces', serif !important;
+            font-size: 3.5rem !important;
+            font-weight: 900 !important;
+            color: #0a0a0a !important;
+            line-height: 0.95 !important;
+            letter-spacing: -0.04em !important;
+            margin: 0 !important;
+        ">
+            Optimizador<br><span style="color: #ff4500;">de Corte</span>
+        </h1>
+        <p style="
+            font-family: 'Manrope', sans-serif;
+            color: #3d3d3d;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        ">
+            Minimización de desperdicio · Cálculo de fuentes
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([2, 1, 1])
 with col2:
-    st.markdown(f"<p style='text-align: right; color: #6b7280; font-size: 0.9rem;'>👤 {st.session_state.user_email}</p>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="
+        text-align: right;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: #3d3d3d;
+        margin-top: 0.5rem;
+    ">
+        OPERADOR: <strong style="color: #0a0a0a;">{st.session_state.user_email}</strong>
+    </div>
+    """, unsafe_allow_html=True)
 with col3:
-    if st.button("🚪 Cerrar Sesión", use_container_width=True):
+    if st.button("CERRAR SESIÓN", use_container_width=True):
         st.session_state.authenticated = False
         st.session_state.user_email = None
         st.session_state.pedidos = []
@@ -826,10 +1207,23 @@ st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 # ============================================================================
 
 with st.sidebar:
-    st.markdown("## ⚙️ Configuración")
-    st.markdown("---")
+    st.markdown("""
+    <div style="
+        font-family: 'Manrope', sans-serif;
+        font-weight: 800;
+        font-size: 0.7rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: #ffcc00;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #ffcc00;
+        margin-bottom: 1.5rem;
+    ">
+        Panel de Control
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("### 📐 Rollo Madre")
+    st.markdown("### Rollo Madre")
     longitud_rollo = st.selectbox(
         "Longitud del rollo",
         options=[5.0, 10.0, 20.0],
@@ -838,7 +1232,7 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("### 📋 Gestión de Cortes")
+    st.markdown("### Gestión de Cortes")
     
     col1, col2 = st.columns(2)
     
@@ -865,7 +1259,7 @@ with st.sidebar:
         rollos_necesarios = math.ceil(largo_pieza / longitud_rollo)
         st.info(f"📏 Corte de {largo_pieza}m requiere {rollos_necesarios} rollos")
     
-    if st.button("➕ Agregar Corte", use_container_width=True):
+    if st.button("AGREGAR CORTE", use_container_width=True):
         st.session_state.pedidos.append(Pedido(largo_pieza, cantidad))
         st.success(f"✅ Agregado: {cantidad}× {largo_pieza}m")
         st.rerun()
@@ -874,7 +1268,7 @@ with st.sidebar:
     
     # Mostrar pedidos
     if st.session_state.pedidos:
-        st.markdown("### 📦 Cortes Actuales")
+        st.markdown("### Cortes Actuales")
         
         df = pd.DataFrame([
             {"Largo (m)": p.largo, "Cantidad": p.cantidad, "Total (m)": p.largo * p.cantidad}
@@ -886,7 +1280,7 @@ with st.sidebar:
         total_metros = sum(p.largo * p.cantidad for p in st.session_state.pedidos)
         st.info(f"**Total:** {total_piezas} piezas • {total_metros:.2f}m")
         
-        if st.button("🗑️ Limpiar", use_container_width=True):
+        if st.button("LIMPIAR", use_container_width=True):
             st.session_state.pedidos = []
             st.session_state.resultados = None
             st.rerun()
@@ -896,7 +1290,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Fuentes (opcional)
-    st.markdown("### ⚡ Fuentes (Opcional)")
+    st.markdown("### Fuentes (Opcional)")
     calc_fuentes = st.checkbox("Calcular fuentes", value=st.session_state.calcular_fuentes_enabled)
     st.session_state.calcular_fuentes_enabled = calc_fuentes
     
@@ -914,7 +1308,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Botón optimizar
-    if st.button("🚀 Calcular Optimización", type="primary", use_container_width=True, 
+    if st.button("CALCULAR OPTIMIZACIÓN", type="primary", use_container_width=True, 
                  disabled=len(st.session_state.pedidos) == 0):
         with st.spinner("Calculando la mejor optimización..."):
             # Lógica automática para max_items según complejidad
@@ -997,9 +1391,30 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("""
-    <div style='text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;'>
-        <small>Sistema de Optimización Avanzada</small><br>
-        <small style='opacity: 0.7;'>v3.0 • Minimiza desperdicios</small>
+    <div style="
+        text-align: center;
+        padding: 1rem 0;
+        margin-top: 1rem;
+    ">
+        <div style="
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #ffcc00;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        ">
+            Jenny
+        </div>
+        <div style="
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 0.15em;
+            margin-top: 0.5rem;
+        ">
+            v3.0 · INDUSTRIAL
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1008,61 +1423,129 @@ with st.sidebar:
 # ============================================================================
 
 if st.session_state.resultados is None:
-    # Pantalla de bienvenida
+    # Pantalla de bienvenida estilo editorial industrial
     st.markdown("""
-    <div class="custom-card" style="text-align: center; padding: 3rem;">
-        <h2 style="color: #1f2937; font-weight: 700;">Bienvenido al Optimizador de Jenny</h2>
-        <p style="font-size: 1.1rem; color: #374151; margin-top: 1rem;">
-            Agrega tus cortes en el panel lateral y presiona 
-            <strong style="color: #f97316;">Calcular Optimización</strong>
-        </p>
-        <br>
-        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 2rem;">
-            <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
-                <div style="font-size: 2rem;">📐</div>
-                <h4>Define tu rollo</h4>
-                <p style="font-size: 0.9rem; color: #64748b;">Longitud estándar del material</p>
-            </div>
-            <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
-                <div style="font-size: 2rem;">📋</div>
-                <h4>Agrega cortes</h4>
-                <p style="font-size: 0.9rem; color: #64748b;">Largos y cantidades (incluso mayores al rollo)</p>
-            </div>
-            <div style="flex: 1; max-width: 300px; background: #f8fafc; padding: 1.5rem; border-radius: 8px;">
-                <div style="font-size: 2rem;">🚀</div>
-                <h4>Optimiza</h4>
-                <p style="font-size: 0.9rem; color: #64748b;">Obtén la mejor distribución con mínimo desperdicio</p>
-            </div>
+    <div style="
+        background: #faf7f0;
+        border: 2px solid #0a0a0a;
+        padding: 3rem 2.5rem;
+        margin: 2rem 0;
+        box-shadow: 8px 8px 0 #0a0a0a;
+        position: relative;
+    ">
+        <div style="
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            background: #ff4500;
+            color: #0a0a0a;
+            padding: 0.3rem 0.8rem;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 800;
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            border: 2px solid #0a0a0a;
+        ">
+            INICIO
+        </div>
+        
+        <div style="margin-top: 1rem;">
+            <h2 style="
+                font-family: 'Fraunces', serif !important;
+                font-size: 2.5rem !important;
+                font-weight: 900 !important;
+                color: #0a0a0a !important;
+                margin: 0 0 1rem 0 !important;
+                letter-spacing: -0.03em !important;
+                line-height: 1 !important;
+            ">
+                Listo para<br>calcular.
+            </h2>
+            <p style="
+                font-family: 'Manrope', sans-serif;
+                font-size: 1rem;
+                color: #3d3d3d;
+                margin: 1rem 0 2rem 0;
+                max-width: 500px;
+                line-height: 1.5;
+            ">
+                Configura el rollo y agrega los cortes en el panel lateral. 
+                El sistema calculará la distribución óptima minimizando desperdicios.
+            </p>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
-    st.markdown("### 💡 ¿Cómo funciona?")
+    # Proceso en 3 pasos - estilo editorial
+    col1, col2, col3 = st.columns(3)
     
-    col1, col2 = st.columns(2)
+    pasos = [
+        {
+            "num": "01",
+            "titulo": "CONFIGURAR",
+            "texto": "Selecciona la longitud del rollo madre",
+            "color": "#ff4500"
+        },
+        {
+            "num": "02", 
+            "titulo": "INGRESAR",
+            "texto": "Agrega los cortes con su largo y cantidad",
+            "color": "#ffcc00"
+        },
+        {
+            "num": "03",
+            "titulo": "CALCULAR",
+            "texto": "Obtén el plan de corte optimizado",
+            "color": "#0a0a0a"
+        }
+    ]
     
-    with col1:
-        st.markdown("""
-        **Sistema de Optimización Avanzada**
-        
-        1. 🔍 Analiza todos tus cortes
-        2. 📐 Calcula las mejores combinaciones
-        3. 🎯 Minimiza desperdicios al máximo
-        4. ✨ Garantiza el mejor aprovechamiento
-        5. 📏 Maneja cortes de cualquier tamaño
-        """)
-    
-    with col2:
-        st.markdown("""
-        **Beneficios**
-        
-        - ⚡ Optimización rápida y precisa
-        - 📊 Visualización clara de resultados
-        - 💰 Máxima reducción de desperdicios
-        - 🎯 Solución profesional certificada
-        - 🔬 Tecnología de vanguardia
-        """)
+    for col, paso in zip([col1, col2, col3], pasos):
+        with col:
+            st.markdown(f"""
+            <div style="
+                background: #f5f1e8;
+                border: 2px solid #0a0a0a;
+                padding: 1.5rem;
+                min-height: 180px;
+                position: relative;
+                box-shadow: 4px 4px 0 #0a0a0a;
+            ">
+                <div style="
+                    font-family: 'Fraunces', serif;
+                    font-size: 3rem;
+                    font-weight: 900;
+                    color: {paso['color']};
+                    line-height: 1;
+                    margin-bottom: 0.5rem;
+                    letter-spacing: -0.05em;
+                ">
+                    {paso['num']}
+                </div>
+                <div style="
+                    font-family: 'Manrope', sans-serif;
+                    font-weight: 800;
+                    font-size: 0.85rem;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
+                    color: #0a0a0a;
+                    margin-bottom: 0.5rem;
+                    padding-bottom: 0.5rem;
+                    border-bottom: 2px solid #0a0a0a;
+                ">
+                    {paso['titulo']}
+                </div>
+                <div style="
+                    font-family: 'Manrope', sans-serif;
+                    font-size: 0.85rem;
+                    color: #3d3d3d;
+                    line-height: 1.4;
+                ">
+                    {paso['texto']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
 else:
     # Resultados
@@ -1070,7 +1553,7 @@ else:
     info_grandes = st.session_state.info_grandes
     estado = st.session_state.estado_solucion
     
-    st.markdown("## 📊 Resultados de Optimización")
+    st.markdown("## Resultados")
     
     # Info de cortes grandes
     if info_grandes:
@@ -1117,91 +1600,131 @@ else:
     rollos_ordenados = sorted(rollos, key=lambda r: r.desperdicio)
     
     for idx, rollo in enumerate(rollos_ordenados, 1):
-        # Determinar estado visual
+        # Determinar estado con paleta industrial
         if rollo.eficiencia >= 95:
-            badge_color = "#10b981"  # Verde
-            badge_text = "PERFECTO"
-            badge_icon = "✨"
+            badge_bg = "#ff4500"  # Signal orange
+            badge_color = "#0a0a0a"
+            badge_text = "ÓPTIMO"
         elif rollo.eficiencia >= 80:
-            badge_color = "#3b82f6"  # Azul
-            badge_text = "EXCELENTE"
-            badge_icon = "✅"
+            badge_bg = "#ffcc00"  # Tape yellow
+            badge_color = "#0a0a0a"
+            badge_text = "EFICIENTE"
         elif rollo.eficiencia >= 60:
-            badge_color = "#f59e0b"  # Ámbar
-            badge_text = "BUENO"
-            badge_icon = "⚠️"
+            badge_bg = "#faf7f0"  # Paper light
+            badge_color = "#0a0a0a"
+            badge_text = "ACEPTABLE"
         else:
-            badge_color = "#ef4444"  # Rojo
+            badge_bg = "#0a0a0a"  # Ink
+            badge_color = "#f5f1e8"
             badge_text = "REVISAR"
-            badge_icon = "🔴"
         
-        tipo_rollo = "Corte Grande" if rollo.es_grande else "Optimizado"
+        tipo_rollo = "EMPALME" if rollo.es_grande else "CORTE DIRECTO"
         
         with st.container():
-            # Header de la tarjeta con diseño profesional
+            # Header estilo editorial/industrial
             st.markdown(f"""
             <div style="
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                border-left: 5px solid {badge_color};
-                border-radius: 12px;
-                padding: 1.5rem;
-                margin-bottom: 1rem;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                background: #faf7f0;
+                border: 2px solid #0a0a0a;
+                padding: 1.5rem 1.75rem;
+                margin-bottom: 0;
+                box-shadow: 6px 6px 0 #0a0a0a;
+                position: relative;
             ">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div>
-                        <span style="
-                            font-size: 1.4rem; 
-                            font-weight: 700; 
-                            color: #0f172a;
-                            font-family: 'Work Sans', sans-serif;
-                        ">
-                            Rollo #{idx}
-                        </span>
-                        <span style="
-                            margin-left: 0.75rem;
-                            padding: 0.25rem 0.75rem;
-                            background: {badge_color}20;
-                            color: {badge_color};
-                            border-radius: 20px;
-                            font-size: 0.75rem;
-                            font-weight: 600;
-                            letter-spacing: 0.05em;
-                        ">
-                            {badge_icon} {badge_text}
-                        </span>
-                        <span style="
-                            margin-left: 0.5rem;
-                            padding: 0.25rem 0.75rem;
-                            background: #e2e8f0;
-                            color: #475569;
-                            border-radius: 20px;
-                            font-size: 0.75rem;
-                            font-weight: 500;
-                        ">
-                            {tipo_rollo}
-                        </span>
-                    </div>
+                <div style="
+                    position: absolute;
+                    top: -2px;
+                    right: -2px;
+                    background: {badge_bg};
+                    color: {badge_color};
+                    padding: 0.5rem 1rem;
+                    border: 2px solid #0a0a0a;
+                    font-family: 'Manrope', sans-serif;
+                    font-weight: 800;
+                    font-size: 0.75rem;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
+                ">
+                    {badge_text}
+                </div>
+                
+                <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;">
+                    <span style="
+                        font-family: 'Fraunces', serif;
+                        font-size: 2.5rem;
+                        font-weight: 900;
+                        color: #0a0a0a;
+                        line-height: 1;
+                        letter-spacing: -0.03em;
+                    ">
+                        N°{idx:02d}
+                    </span>
+                    <span style="
+                        font-family: 'Manrope', sans-serif;
+                        font-weight: 700;
+                        font-size: 0.7rem;
+                        letter-spacing: 0.2em;
+                        text-transform: uppercase;
+                        color: #3d3d3d;
+                        padding: 0.25rem 0.75rem;
+                        border: 1px solid #3d3d3d;
+                    ">
+                        {tipo_rollo}
+                    </span>
+                </div>
+                
+                <div style="
+                    font-family: 'JetBrains Mono', monospace;
+                    font-size: 0.85rem;
+                    color: #3d3d3d;
+                    font-weight: 500;
+                    letter-spacing: 0.05em;
+                ">
+                    ROLLO DE {rollo.tipo_rollo:.0f}M · {len(rollo.cortes)} PIEZAS
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-            # Métricas y visualización
+            # Contenedor de datos
+            st.markdown("""
+            <div style="
+                background: #f5f1e8;
+                border: 2px solid #0a0a0a;
+                border-top: none;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            ">
+            """, unsafe_allow_html=True)
+            
             col1, col2, col3 = st.columns([3, 1, 1])
             
             with col1:
-                # Lista de piezas con formato mejorado (una sola línea)
-                chips_style = "display:inline-block;padding:0.25rem 0.75rem;margin:0.25rem 0.25rem 0.25rem 0;background:#f1f5f9;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;color:#334155;font-weight:600;"
+                # Label de piezas
+                st.markdown("""
+                <div style="
+                    font-family: 'Manrope', sans-serif;
+                    font-weight: 700;
+                    font-size: 0.7rem;
+                    letter-spacing: 0.2em;
+                    text-transform: uppercase;
+                    color: #3d3d3d;
+                    margin-bottom: 0.5rem;
+                ">
+                    Composición del Corte
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Chips estilo ticket industrial
+                chips_style = "display:inline-block;padding:0.5rem 0.9rem;margin:0.25rem 0.25rem 0.25rem 0;background:#faf7f0;border:2px solid #0a0a0a;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#0a0a0a;font-weight:700;box-shadow:2px 2px 0 #0a0a0a;"
                 
                 piezas_html = ""
                 for pieza in rollo.cortes:
                     piezas_html += f'<span style="{chips_style}">{pieza}m</span>'
                 
-                st.markdown(f"**Piezas cortadas:**<br>{piezas_html}", unsafe_allow_html=True)
+                st.markdown(piezas_html, unsafe_allow_html=True)
             
             with col2:
-                st.metric("Eficiencia", f"{rollo.eficiencia:.1f}%", 
-                         label_visibility="visible")
+                st.metric("Eficiencia", f"{rollo.eficiencia:.1f}%")
             
             with col3:
                 st.metric("Desperdicio", f"{rollo.desperdicio:.2f}m",
@@ -1216,7 +1739,8 @@ else:
                 key=f"rollo_chart_{idx}_{rollo.rollo_id}"
             )
             
-            st.markdown("<br>", unsafe_allow_html=True)
+            # Cerrar el contenedor de datos
+            st.markdown("</div>", unsafe_allow_html=True)
     
     # Tabla detallada
     st.markdown("---")
@@ -1293,12 +1817,32 @@ else:
                 "text/csv"
             )
 
-# Footer
-st.markdown("---")
+# Footer editorial
 st.markdown("""
-<div style='text-align: center; color: #64748b; padding: 1rem;'>
-    <p>Optimizador Jenny v3.0 • Sistema Profesional de Optimización</p>
-    <p style='font-size: 0.8rem;'>Minimiza desperdicios • Maximiza eficiencia</p>
+<div style="
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px solid #0a0a0a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+">
+    <div style="
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #0a0a0a;
+        letter-spacing: -0.02em;
+    ">
+        Optimizador <span style="color: #ff4500;">Jenny</span>
+    </div>
+    <div style="
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #6b6b6b;
+        letter-spacing: 0.1em;
+    ">
+        v3.0 · INSTRUMENTO INDUSTRIAL
+    </div>
 </div>
 """, unsafe_allow_html=True)
-
