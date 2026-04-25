@@ -1082,9 +1082,6 @@ with st.sidebar:
         
         st.success("✅ Optimización completada")
         st.rerun()
-    
-    st.markdown("---")
-    st.markdown('<p style="text-align:center;color:rgba(255,255,255,0.3);font-size:0.75rem;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)
 
 # ============================================================================
 # ÁREA PRINCIPAL
@@ -1164,8 +1161,8 @@ else:
     st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
     
     # Visualización
-    st.markdown("## 🎨 Distribución de Cortes")
-    st.caption("📊 Ordenados de menor a mayor desperdicio (más eficientes primero)")
+    st.markdown("## Distribución de Cortes")
+    st.caption("Ordenados de menor a mayor desperdicio")
     
     # Ordenar rollos: primero los más eficientes (menos desperdicio)
     rollos_ordenados = sorted(rollos, key=lambda r: r.desperdicio)
@@ -1303,9 +1300,4 @@ else:
             )
 
 # Footer
-st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;">Optimizador Jenny v3.0 · Minimiza desperdicios · Maximiza eficiencia</p>', unsafe_allow_html=True)
-
-# Footer
-st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;">Optimizador Jenny v3.0 · Minimiza desperdicios · Maximiza eficiencia</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)
