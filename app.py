@@ -972,44 +972,14 @@ def check_authentication():
         return True
     
     # Header editorial de login
-    st.markdown("""
-    <div style='padding: 3rem 0 2rem 0;'>
-        <div style="
-            display: inline-block;
-            background: #0a0a0a;
-            color: #ffcc00;
-            padding: 0.3rem 0.8rem;
-            font-family: 'Manrope', sans-serif;
-            font-weight: 800;
-            font-size: 0.7rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        ">
-            ACCESO RESTRINGIDO
-        </div>
-        <h1 style="
-            font-family: 'Fraunces', serif !important;
-            font-size: 4rem !important;
-            font-weight: 900 !important;
-            color: #0a0a0a !important;
-            line-height: 0.95 !important;
-            letter-spacing: -0.04em !important;
-            margin: 0 0 1rem 0 !important;
-        ">
-            Optimizador<br><span style="color: #ff4500;">Jenny</span>
-        </h1>
-        <p style="
-            font-family: 'Manrope', sans-serif;
-            font-size: 1rem;
-            color: #3d3d3d;
-            margin: 0;
-            font-weight: 500;
-        ">
-            Instrumento profesional de corte y optimización
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="padding:3rem 0 2rem 0;">'
+        '<div style="display:inline-block;background:#0a0a0a;color:#ffcc00;padding:0.3rem 0.8rem;font-family:Manrope,sans-serif;font-weight:800;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:1rem;">ACCESO RESTRINGIDO</div>'
+        '<h1 style="font-family:Fraunces,serif;font-size:4rem;font-weight:900;color:#0a0a0a;line-height:0.95;letter-spacing:-0.04em;margin:0 0 1rem 0;">Optimizador<br><span style="color:#ff4500;">Jenny</span></h1>'
+        '<p style="font-family:Manrope,sans-serif;font-size:1rem;color:#3d3d3d;margin:0;font-weight:500;">Instrumento profesional de corte y optimización</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
     
     # Logo
     try:
@@ -1064,24 +1034,12 @@ def check_authentication():
             else:
                 st.warning("Ingresa un email válido")
     
-    st.markdown("""
-    <div style="
-        margin-top: 3rem;
-        padding-top: 2rem;
-        border-top: 2px solid #0a0a0a;
-        text-align: center;
-    ">
-        <p style="
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: #6b6b6b;
-            letter-spacing: 0.1em;
-            margin: 0;
-        ">
-            v3.0 · INSTRUMENTO INDUSTRIAL
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="margin-top:3rem;padding-top:2rem;border-top:2px solid #0a0a0a;text-align:center;">'
+        '<p style="font-family:JetBrains Mono,monospace;font-size:0.75rem;color:#6b6b6b;letter-spacing:0.1em;margin:0;">v3.0 · INSTRUMENTO INDUSTRIAL</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
     
     return False
 
@@ -1119,79 +1077,27 @@ with col_logo:
             logo = Image.open("logo.png")
             st.image(logo, width=140)
     except:
-        st.markdown("""
-        <div style="
-            width: 100px;
-            height: 100px;
-            background: #0a0a0a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Fraunces', serif;
-            font-size: 3rem;
-            font-weight: 900;
-            color: #f5f1e8;
-            border: 3px solid #0a0a0a;
-            box-shadow: 6px 6px 0 #ff4500;
-        ">
-            J
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            '<div style="width:100px;height:100px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:3rem;font-weight:900;color:#f5f1e8;border:3px solid #0a0a0a;box-shadow:6px 6px 0 #ff4500;">J</div>',
+            unsafe_allow_html=True
+        )
 
 with col_titulo:
-    st.markdown("""
-    <div style="margin-top: 0.5rem;">
-        <div style="
-            display: inline-block;
-            background: #0a0a0a;
-            color: #ffcc00;
-            padding: 0.2rem 0.75rem;
-            font-family: 'Manrope', sans-serif;
-            font-weight: 800;
-            font-size: 0.65rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        ">
-            INSTRUMENTO DE CORTE · JENNY
-        </div>
-        <h1 style="
-            font-family: 'Fraunces', serif !important;
-            font-size: 3.5rem !important;
-            font-weight: 900 !important;
-            color: #0a0a0a !important;
-            line-height: 0.95 !important;
-            letter-spacing: -0.04em !important;
-            margin: 0 !important;
-        ">
-            Optimizador<br><span style="color: #ff4500;">de Corte</span>
-        </h1>
-        <p style="
-            font-family: 'Manrope', sans-serif;
-            color: #3d3d3d;
-            font-size: 0.9rem;
-            margin-top: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-        ">
-            Minimización de desperdicio · Cálculo de fuentes
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="margin-top:0.5rem;">'
+        '<div style="display:inline-block;background:#0a0a0a;color:#ffcc00;padding:0.2rem 0.75rem;font-family:Manrope,sans-serif;font-weight:800;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:0.5rem;">INSTRUMENTO DE CORTE · JENNY</div>'
+        '<h1 style="font-family:Fraunces,serif;font-size:3.5rem;font-weight:900;color:#0a0a0a;line-height:0.95;letter-spacing:-0.04em;margin:0;">Optimizador<br><span style="color:#ff4500;">de Corte</span></h1>'
+        '<p style="font-family:Manrope,sans-serif;color:#3d3d3d;font-size:0.9rem;margin-top:0.75rem;font-weight:500;letter-spacing:0.05em;">Minimización de desperdicio · Cálculo de fuentes</p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 col1, col2, col3 = st.columns([2, 1, 1])
 with col2:
-    st.markdown(f"""
-    <div style="
-        text-align: right;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.8rem;
-        color: #3d3d3d;
-        margin-top: 0.5rem;
-    ">
-        OPERADOR: <strong style="color: #0a0a0a;">{st.session_state.user_email}</strong>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="text-align:right;font-family:JetBrains Mono,monospace;font-size:0.8rem;color:#3d3d3d;margin-top:0.5rem;">OPERADOR: <strong style="color:#0a0a0a;">{st.session_state.user_email}</strong></div>',
+        unsafe_allow_html=True
+    )
 with col3:
     if st.button("CERRAR SESIÓN", use_container_width=True):
         st.session_state.authenticated = False
@@ -1207,21 +1113,10 @@ st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 # ============================================================================
 
 with st.sidebar:
-    st.markdown("""
-    <div style="
-        font-family: 'Manrope', sans-serif;
-        font-weight: 800;
-        font-size: 0.7rem;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        color: #ffcc00;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #ffcc00;
-        margin-bottom: 1.5rem;
-    ">
-        Panel de Control
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="font-family:Manrope,sans-serif;font-weight:800;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:#ffcc00;padding-bottom:0.5rem;border-bottom:2px solid #ffcc00;margin-bottom:1.5rem;">Panel de Control</div>',
+        unsafe_allow_html=True
+    )
     
     st.markdown("### Rollo Madre")
     longitud_rollo = st.selectbox(
@@ -1390,33 +1285,13 @@ with st.sidebar:
         st.rerun()
     
     st.markdown("---")
-    st.markdown("""
-    <div style="
-        text-align: center;
-        padding: 1rem 0;
-        margin-top: 1rem;
-    ">
-        <div style="
-            font-family: 'Fraunces', serif;
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #ffcc00;
-            letter-spacing: -0.02em;
-            line-height: 1;
-        ">
-            Jenny
-        </div>
-        <div style="
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: #888;
-            letter-spacing: 0.15em;
-            margin-top: 0.5rem;
-        ">
-            v3.0 · INDUSTRIAL
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="text-align:center;padding:1rem 0;margin-top:1rem;">'
+        '<div style="font-family:Fraunces,serif;font-size:1.5rem;font-weight:900;color:#ffcc00;letter-spacing:-0.02em;line-height:1;">Jenny</div>'
+        '<div style="font-family:JetBrains Mono,monospace;font-size:0.7rem;color:#888;letter-spacing:0.15em;margin-top:0.5rem;">v3.0 · INDUSTRIAL</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 # ============================================================================
 # ÁREA PRINCIPAL
@@ -1424,58 +1299,16 @@ with st.sidebar:
 
 if st.session_state.resultados is None:
     # Pantalla de bienvenida estilo editorial industrial
-    st.markdown("""
-    <div style="
-        background: #faf7f0;
-        border: 2px solid #0a0a0a;
-        padding: 3rem 2.5rem;
-        margin: 2rem 0;
-        box-shadow: 8px 8px 0 #0a0a0a;
-        position: relative;
-    ">
-        <div style="
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            background: #ff4500;
-            color: #0a0a0a;
-            padding: 0.3rem 0.8rem;
-            font-family: 'Manrope', sans-serif;
-            font-weight: 800;
-            font-size: 0.65rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            border: 2px solid #0a0a0a;
-        ">
-            INICIO
-        </div>
-        
-        <div style="margin-top: 1rem;">
-            <h2 style="
-                font-family: 'Fraunces', serif !important;
-                font-size: 2.5rem !important;
-                font-weight: 900 !important;
-                color: #0a0a0a !important;
-                margin: 0 0 1rem 0 !important;
-                letter-spacing: -0.03em !important;
-                line-height: 1 !important;
-            ">
-                Listo para<br>calcular.
-            </h2>
-            <p style="
-                font-family: 'Manrope', sans-serif;
-                font-size: 1rem;
-                color: #3d3d3d;
-                margin: 1rem 0 2rem 0;
-                max-width: 500px;
-                line-height: 1.5;
-            ">
-                Configura el rollo y agrega los cortes en el panel lateral. 
-                El sistema calculará la distribución óptima minimizando desperdicios.
-            </p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="background:#faf7f0;border:2px solid #0a0a0a;padding:3rem 2.5rem;margin:2rem 0;box-shadow:8px 8px 0 #0a0a0a;position:relative;">'
+        '<div style="position:absolute;top:-2px;left:-2px;background:#ff4500;color:#0a0a0a;padding:0.3rem 0.8rem;font-family:Manrope,sans-serif;font-weight:800;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;border:2px solid #0a0a0a;">INICIO</div>'
+        '<div style="margin-top:1rem;">'
+        '<h2 style="font-family:Fraunces,serif;font-size:2.5rem;font-weight:900;color:#0a0a0a;margin:0 0 1rem 0;letter-spacing:-0.03em;line-height:1;">Listo para<br>calcular.</h2>'
+        '<p style="font-family:Manrope,sans-serif;font-size:1rem;color:#3d3d3d;margin:1rem 0 2rem 0;max-width:500px;line-height:1.5;">Configura el rollo y agrega los cortes en el panel lateral. El sistema calculará la distribución óptima minimizando desperdicios.</p>'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
     
     # Proceso en 3 pasos - estilo editorial
     col1, col2, col3 = st.columns(3)
@@ -1503,49 +1336,14 @@ if st.session_state.resultados is None:
     
     for col, paso in zip([col1, col2, col3], pasos):
         with col:
-            st.markdown(f"""
-            <div style="
-                background: #f5f1e8;
-                border: 2px solid #0a0a0a;
-                padding: 1.5rem;
-                min-height: 180px;
-                position: relative;
-                box-shadow: 4px 4px 0 #0a0a0a;
-            ">
-                <div style="
-                    font-family: 'Fraunces', serif;
-                    font-size: 3rem;
-                    font-weight: 900;
-                    color: {paso['color']};
-                    line-height: 1;
-                    margin-bottom: 0.5rem;
-                    letter-spacing: -0.05em;
-                ">
-                    {paso['num']}
-                </div>
-                <div style="
-                    font-family: 'Manrope', sans-serif;
-                    font-weight: 800;
-                    font-size: 0.85rem;
-                    letter-spacing: 0.2em;
-                    text-transform: uppercase;
-                    color: #0a0a0a;
-                    margin-bottom: 0.5rem;
-                    padding-bottom: 0.5rem;
-                    border-bottom: 2px solid #0a0a0a;
-                ">
-                    {paso['titulo']}
-                </div>
-                <div style="
-                    font-family: 'Manrope', sans-serif;
-                    font-size: 0.85rem;
-                    color: #3d3d3d;
-                    line-height: 1.4;
-                ">
-                    {paso['texto']}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div style="background:#f5f1e8;border:2px solid #0a0a0a;padding:1.5rem;min-height:180px;position:relative;box-shadow:4px 4px 0 #0a0a0a;">'
+                f'<div style="font-family:Fraunces,serif;font-size:3rem;font-weight:900;color:{paso["color"]};line-height:1;margin-bottom:0.5rem;letter-spacing:-0.05em;">{paso["num"]}</div>'
+                f'<div style="font-family:Manrope,sans-serif;font-weight:800;font-size:0.85rem;letter-spacing:0.2em;text-transform:uppercase;color:#0a0a0a;margin-bottom:0.5rem;padding-bottom:0.5rem;border-bottom:2px solid #0a0a0a;">{paso["titulo"]}</div>'
+                f'<div style="font-family:Manrope,sans-serif;font-size:0.85rem;color:#3d3d3d;line-height:1.4;">{paso["texto"]}</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
 else:
     # Resultados
@@ -1622,97 +1420,32 @@ else:
         
         with st.container():
             # Header estilo editorial/industrial
-            st.markdown(f"""
-            <div style="
-                background: #faf7f0;
-                border: 2px solid #0a0a0a;
-                padding: 1.5rem 1.75rem;
-                margin-bottom: 0;
-                box-shadow: 6px 6px 0 #0a0a0a;
-                position: relative;
-            ">
-                <div style="
-                    position: absolute;
-                    top: -2px;
-                    right: -2px;
-                    background: {badge_bg};
-                    color: {badge_color};
-                    padding: 0.5rem 1rem;
-                    border: 2px solid #0a0a0a;
-                    font-family: 'Manrope', sans-serif;
-                    font-weight: 800;
-                    font-size: 0.75rem;
-                    letter-spacing: 0.2em;
-                    text-transform: uppercase;
-                ">
-                    {badge_text}
-                </div>
-                
-                <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;">
-                    <span style="
-                        font-family: 'Fraunces', serif;
-                        font-size: 2.5rem;
-                        font-weight: 900;
-                        color: #0a0a0a;
-                        line-height: 1;
-                        letter-spacing: -0.03em;
-                    ">
-                        N°{idx:02d}
-                    </span>
-                    <span style="
-                        font-family: 'Manrope', sans-serif;
-                        font-weight: 700;
-                        font-size: 0.7rem;
-                        letter-spacing: 0.2em;
-                        text-transform: uppercase;
-                        color: #3d3d3d;
-                        padding: 0.25rem 0.75rem;
-                        border: 1px solid #3d3d3d;
-                    ">
-                        {tipo_rollo}
-                    </span>
-                </div>
-                
-                <div style="
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.85rem;
-                    color: #3d3d3d;
-                    font-weight: 500;
-                    letter-spacing: 0.05em;
-                ">
-                    ROLLO DE {rollo.tipo_rollo:.0f}M · {len(rollo.cortes)} PIEZAS
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div style="background:#faf7f0;border:2px solid #0a0a0a;padding:1.5rem 1.75rem;margin-bottom:0;box-shadow:6px 6px 0 #0a0a0a;position:relative;">'
+                f'<div style="position:absolute;top:-2px;right:-2px;background:{badge_bg};color:{badge_color};padding:0.5rem 1rem;border:2px solid #0a0a0a;font-family:Manrope,sans-serif;font-weight:800;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;">{badge_text}</div>'
+                f'<div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:0.5rem;">'
+                f'<span style="font-family:Fraunces,serif;font-size:2.5rem;font-weight:900;color:#0a0a0a;line-height:1;letter-spacing:-0.03em;">N°{idx:02d}</span>'
+                f'<span style="font-family:Manrope,sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:#3d3d3d;padding:0.25rem 0.75rem;border:1px solid #3d3d3d;">{tipo_rollo}</span>'
+                f'</div>'
+                f'<div style="font-family:JetBrains Mono,monospace;font-size:0.85rem;color:#3d3d3d;font-weight:500;letter-spacing:0.05em;">ROLLO DE {rollo.tipo_rollo:.0f}M · {len(rollo.cortes)} PIEZAS</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
             
             # Contenedor de datos
-            st.markdown("""
-            <div style="
-                background: #f5f1e8;
-                border: 2px solid #0a0a0a;
-                border-top: none;
-                padding: 1.5rem;
-                margin-bottom: 1.5rem;
-            ">
-            """, unsafe_allow_html=True)
+            st.markdown(
+                '<div style="background:#f5f1e8;border:2px solid #0a0a0a;border-top:none;padding:1.5rem;margin-bottom:1.5rem;">',
+                unsafe_allow_html=True
+            )
             
             col1, col2, col3 = st.columns([3, 1, 1])
             
             with col1:
                 # Label de piezas
-                st.markdown("""
-                <div style="
-                    font-family: 'Manrope', sans-serif;
-                    font-weight: 700;
-                    font-size: 0.7rem;
-                    letter-spacing: 0.2em;
-                    text-transform: uppercase;
-                    color: #3d3d3d;
-                    margin-bottom: 0.5rem;
-                ">
-                    Composición del Corte
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(
+                    '<div style="font-family:Manrope,sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:#3d3d3d;margin-bottom:0.5rem;">Composición del Corte</div>',
+                    unsafe_allow_html=True
+                )
                 
                 # Chips estilo ticket industrial
                 chips_style = "display:inline-block;padding:0.5rem 0.9rem;margin:0.25rem 0.25rem 0.25rem 0;background:#faf7f0;border:2px solid #0a0a0a;font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:#0a0a0a;font-weight:700;box-shadow:2px 2px 0 #0a0a0a;"
@@ -1818,31 +1551,11 @@ else:
             )
 
 # Footer editorial
-st.markdown("""
-<div style="
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 2px solid #0a0a0a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-">
-    <div style="
-        font-family: 'Fraunces', serif;
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #0a0a0a;
-        letter-spacing: -0.02em;
-    ">
-        Optimizador <span style="color: #ff4500;">Jenny</span>
-    </div>
-    <div style="
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.75rem;
-        color: #6b6b6b;
-        letter-spacing: 0.1em;
-    ">
-        v3.0 · INSTRUMENTO INDUSTRIAL
-    </div>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    '<div style="margin-top:4rem;padding-top:2rem;border-top:2px solid #0a0a0a;display:flex;justify-content:space-between;align-items:center;">'
+    '<div style="font-family:Fraunces,serif;font-weight:700;font-size:1.1rem;color:#0a0a0a;letter-spacing:-0.02em;">Optimizador <span style="color:#ff4500;">Jenny</span></div>'
+    '<div style="font-family:JetBrains Mono,monospace;font-size:0.75rem;color:#6b6b6b;letter-spacing:0.1em;">v3.0 · INSTRUMENTO INDUSTRIAL</div>'
+    '</div>',
+    unsafe_allow_html=True
+)
+
