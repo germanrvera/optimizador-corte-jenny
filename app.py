@@ -46,9 +46,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 
     :root {
-        --brand: #16a34a;
-        --brand-light: #dcfce7;
-        --brand-dark: #15803d;
+        --brand: #7c3aed;
+        --brand-light: #ede9fe;
+        --brand-dark: #6d28d9;
         --bg: #f9fafb;
         --white: #ffffff;
         --text: #111827;
@@ -56,16 +56,14 @@ st.markdown("""
         --border: #e5e7eb;
         --radius: 12px;
         --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
-        --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.08);
     }
 
-    /* Fondo y tipografía base */
+    /* Base */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
         background-color: var(--bg) !important;
         color: var(--text) !important;
     }
-
     .main { background-color: var(--bg) !important; }
 
     /* Logo */
@@ -129,15 +127,15 @@ st.markdown("""
         background: var(--brand) !important;
         color: white !important;
         border-color: var(--brand) !important;
-        box-shadow: 0 2px 8px rgba(22,163,74,0.35) !important;
+        box-shadow: 0 2px 8px rgba(124,58,237,0.35) !important;
     }
     .stButton > button[kind="primary"]:hover {
         background: var(--brand-dark) !important;
         color: white !important;
-        box-shadow: 0 4px 14px rgba(22,163,74,0.4) !important;
+        box-shadow: 0 4px 14px rgba(124,58,237,0.4) !important;
     }
 
-    /* Inputs */
+    /* Inputs generales */
     .stNumberInput > div > div > input,
     .stTextInput > div > div > input {
         border: 1.5px solid var(--border) !important;
@@ -156,10 +154,15 @@ st.markdown("""
         box-shadow: 0 0 0 3px var(--brand-light) !important;
         outline: none !important;
     }
-    [data-testid="stSidebar"] .stNumberInput > div > div > input {
-        background: rgba(255,255,255,0.12) !important;
-        color: white !important;
-        border-color: rgba(255,255,255,0.2) !important;
+
+    /* Inputs dentro del sidebar - FONDO BLANCO para que se vean los números */
+    [data-testid="stSidebar"] .stNumberInput > div > div > input,
+    [data-testid="stSidebar"] .stTextInput > div > div > input {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1.5px solid rgba(255,255,255,0.3) !important;
+        font-weight: 600 !important;
+        -webkit-text-fill-color: #111827 !important;
     }
 
     /* Selectbox */
@@ -169,13 +172,18 @@ st.markdown("""
         background: var(--white) !important;
     }
     [data-testid="stSidebar"] .stSelectbox > div > div {
-        background: rgba(255,255,255,0.12) !important;
-        border-color: rgba(255,255,255,0.2) !important;
+        background: #ffffff !important;
+        border-color: rgba(255,255,255,0.3) !important;
+        color: #111827 !important;
+    }
+    [data-testid="stSidebar"] .stSelectbox [data-baseweb="select"] > div {
+        color: #111827 !important;
+        background: #ffffff !important;
     }
 
     /* Sidebar */
     [data-testid="stSidebar"] {
-        background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%) !important;
+        background: linear-gradient(160deg, #1e1b4b 0%, #0f0e2e 100%) !important;
     }
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
@@ -189,7 +197,7 @@ st.markdown("""
     }
     [data-testid="stSidebar"] h3 { color: rgba(255,255,255,0.5) !important; border: none !important; }
     [data-testid="stSidebar"] label {
-        color: rgba(255,255,255,0.7) !important;
+        color: rgba(255,255,255,0.75) !important;
         font-weight: 500 !important;
         font-size: 0.82rem !important;
     }
@@ -220,8 +228,30 @@ st.markdown("""
         color: var(--text-muted) !important;
         padding: 0.75rem 1rem !important;
     }
-    .dataframe tbody tr td { padding: 0.6rem 1rem !important; font-family: 'DM Mono', monospace !important; font-size: 0.875rem !important; }
+    .dataframe tbody tr td {
+        padding: 0.6rem 1rem !important;
+        font-family: 'DM Mono', monospace !important;
+        font-size: 0.875rem !important;
+    }
     .dataframe tbody tr:hover { background: var(--brand-light) !important; }
+
+    /* Info/warning/error en sidebar */
+    [data-testid="stSidebar"] .stAlert {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        border-radius: 8px !important;
+        color: white !important;
+    }
+    [data-testid="stSidebar"] .stAlert > div,
+    [data-testid="stSidebar"] .stAlert p,
+    [data-testid="stSidebar"] .stAlert strong {
+        color: white !important;
+    }
+
+    /* Checkbox en sidebar */
+    [data-testid="stSidebar"] .stCheckbox label {
+        color: white !important;
+    }
 
     /* Download button */
     [data-testid="stDownloadButton"] > button {
@@ -234,8 +264,53 @@ st.markdown("""
     [data-testid="stDownloadButton"] > button:hover {
         background: var(--brand-light) !important;
     }
+
+    /* Botones dentro del sidebar - siempre visibles */
+    [data-testid="stSidebar"] .stButton > button {
+        background: rgba(255,255,255,0.1) !important;
+        color: white !important;
+        border: 1.5px solid rgba(255,255,255,0.25) !important;
+        font-weight: 600 !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stSidebar"] .stButton > button:hover {
+        background: rgba(255,255,255,0.2) !important;
+        color: white !important;
+        border-color: rgba(255,255,255,0.4) !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+    /* Botón primario del sidebar (Calcular) */
+    [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+        background: var(--brand) !important;
+        color: white !important;
+        border-color: var(--brand) !important;
+        box-shadow: 0 2px 8px rgba(124,58,237,0.4) !important;
+    }
+    [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover {
+        background: var(--brand-dark) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Dataframe en sidebar */
+    [data-testid="stSidebar"] .dataframe {
+        background: rgba(255,255,255,0.05) !important;
+        border-color: rgba(255,255,255,0.1) !important;
+    }
+    [data-testid="stSidebar"] .dataframe thead tr th {
+        background: rgba(255,255,255,0.1) !important;
+        color: rgba(255,255,255,0.6) !important;
+    }
+    [data-testid="stSidebar"] .dataframe tbody tr td {
+        color: rgba(255,255,255,0.9) !important;
+        border-top-color: rgba(255,255,255,0.08) !important;
+    }
+    [data-testid="stSidebar"] .dataframe tbody tr:hover {
+        background: rgba(124,58,237,0.2) !important;
+    }
 </style>
 """, unsafe_allow_html=True)
+
     
 # ============================================================================
 # CLASES Y ESTRUCTURAS DE DATOS
@@ -597,14 +672,14 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
     
     # Paleta industrial - como cinta métrica
     colores_industriales = [
-        '#16a34a',  # Verde (brand)
+        '#7c3aed',  # Violeta (brand)
         '#2563eb',  # Azul
-        '#7c3aed',  # Violeta
         '#db2777',  # Rosa
         '#d97706',  # Ámbar
         '#0891b2',  # Cyan
-        '#059669',  # Esmeralda
+        '#9333ea',  # Púrpura
         '#dc2626',  # Rojo
+        '#0369a1',  # Azul oscuro
     ]
     
     posicion = 0
@@ -722,9 +797,8 @@ def check_authentication():
     # Header editorial de login
     st.markdown(
         '<div style="max-width:420px;margin:3rem auto 2rem auto;text-align:center;">'
-        '<div style="font-size:2.5rem;margin-bottom:1rem;">📏</div>'
         '<h1 style="font-size:1.75rem;font-weight:800;color:#111827;margin:0 0 0.5rem 0;">Optimizador de Jenny</h1>'
-        '<p style="color:#6b7280;font-size:0.95rem;margin:0;">Ingresa tu email para acceder</p>'
+        '<p style="color:#6b7280;font-size:0.95rem;margin:0;">Ingresá tu email para acceder</p>'
         '</div>',
         unsafe_allow_html=True
     )
@@ -809,8 +883,8 @@ with col_logo:
         pass
 
 with col_titulo:
-    st.markdown("# 📏 Optimizador de Jenny")
-    st.markdown('<p style="color:#6b7280;margin-top:-0.5rem;">Sistema de corte inteligente · Minimiza desperdicios</p>', unsafe_allow_html=True)
+    st.markdown("# Optimizador de Jenny")
+    st.markdown('<p style="color:#6b7280;margin-top:-0.5rem;font-size:0.95rem;">Sistema de corte inteligente · Minimiza desperdicios</p>', unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([3, 1, 1])
 with col2:
@@ -830,7 +904,7 @@ st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 # ============================================================================
 
 with st.sidebar:
-    st.markdown("## ⚙️ Configuración")
+    st.markdown("## Configuración")
     st.markdown("---")
     
     st.markdown("### Rollo Madre")
@@ -869,7 +943,7 @@ with st.sidebar:
         rollos_necesarios = math.ceil(largo_pieza / longitud_rollo)
         st.info(f"📏 Corte de {largo_pieza}m requiere {rollos_necesarios} rollos")
     
-    if st.button("AGREGAR CORTE", use_container_width=True):
+    if st.button("Agregar corte", use_container_width=True):
         st.session_state.pedidos.append(Pedido(largo_pieza, cantidad))
         st.success(f"✅ Agregado: {cantidad}× {largo_pieza}m")
         st.rerun()
@@ -890,7 +964,7 @@ with st.sidebar:
         total_metros = sum(p.largo * p.cantidad for p in st.session_state.pedidos)
         st.info(f"**Total:** {total_piezas} piezas • {total_metros:.2f}m")
         
-        if st.button("LIMPIAR", use_container_width=True):
+        if st.button("Limpiar lista", use_container_width=True):
             st.session_state.pedidos = []
             st.session_state.resultados = None
             st.rerun()
@@ -918,7 +992,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Botón optimizar
-    if st.button("CALCULAR OPTIMIZACIÓN", type="primary", use_container_width=True, 
+    if st.button("Calcular optimización", type="primary", use_container_width=True, 
                  disabled=len(st.session_state.pedidos) == 0):
         with st.spinner("Calculando la mejor optimización..."):
             # Lógica automática para max_items según complejidad
@@ -1007,28 +1081,28 @@ with st.sidebar:
 # ============================================================================
 
 if st.session_state.resultados is None:
-    # Pantalla de bienvenida limpia
-    st.markdown('<div style="background:white;border-radius:16px;padding:2.5rem;margin:1rem 0;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.06);text-align:center;">'
-                '<div style="font-size:3rem;margin-bottom:1rem;">📏</div>'
-                '<h2 style="font-size:1.5rem;font-weight:700;color:#111827;margin:0 0 0.5rem 0;">¡Listo para calcular!</h2>'
-                '<p style="color:#6b7280;font-size:0.95rem;max-width:400px;margin:0 auto;">Agrega tus cortes en el panel izquierdo y presiona <strong style="color:#16a34a;">Calcular Optimización</strong></p>'
-                '</div>', unsafe_allow_html=True)
-    
+    st.markdown(
+        '<div style="background:white;border-radius:16px;padding:2.5rem;margin:1rem 0;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.06);">'
+        '<h2 style="font-size:1.4rem;font-weight:700;color:#111827;margin:0 0 0.5rem 0;">Calculá tu plan de corte</h2>'
+        '<p style="color:#6b7280;font-size:0.95rem;margin:0;">Agregá los cortes en el panel izquierdo y presioná <strong style="color:#7c3aed;">Calcular Optimización</strong></p>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
     st.markdown("<br>", unsafe_allow_html=True)
-    
+
     col1, col2, col3 = st.columns(3)
     pasos = [
-        ("01", "📐", "Selecciona el rollo", "Elige 5m, 10m o 20m según el material disponible"),
-        ("02", "✏️", "Agrega los cortes", "Indica el largo y cantidad de cada pieza"),
-        ("03", "🚀", "Calcula y descarga", "Obtén el plan optimizado con mínimo desperdicio"),
+        ("01", "Seleccioná el rollo", "Elegí 5m, 10m o 20m según el material disponible"),
+        ("02", "Agregá los cortes", "Indicá el largo y cantidad de cada pieza"),
+        ("03", "Calculá y descargá", "Obtené el plan optimizado con mínimo desperdicio"),
     ]
-    for col, (num, icon, titulo, texto) in zip([col1, col2, col3], pasos):
+    for col, (num, titulo, texto) in zip([col1, col2, col3], pasos):
         with col:
             st.markdown(
                 f'<div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.06);height:100%;">'
-                f'<div style="font-size:1.75rem;margin-bottom:0.75rem;">{icon}</div>'
-                f'<div style="font-size:0.7rem;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Paso {num}</div>'
-                f'<div style="font-size:0.95rem;font-weight:700;color:#111827;margin-bottom:0.5rem;">{titulo}</div>'
+                f'<div style="font-size:0.7rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Paso {num}</div>'
+                f'<div style="font-size:0.95rem;font-weight:700;color:#111827;margin-bottom:0.4rem;">{titulo}</div>'
                 f'<div style="font-size:0.85rem;color:#6b7280;line-height:1.5;">{texto}</div>'
                 f'</div>',
                 unsafe_allow_html=True
@@ -1089,13 +1163,13 @@ else:
     for idx, rollo in enumerate(rollos_ordenados, 1):
         # Estado del rollo
         if rollo.eficiencia >= 95:
-            badge_bg, badge_color, badge_text = "#dcfce7", "#15803d", "✅ Óptimo"
+            badge_bg, badge_color, badge_text = "#ede9fe", "#6d28d9", "Óptimo"
         elif rollo.eficiencia >= 80:
-            badge_bg, badge_color, badge_text = "#dbeafe", "#1d4ed8", "👍 Eficiente"
+            badge_bg, badge_color, badge_text = "#dbeafe", "#1d4ed8", "Eficiente"
         elif rollo.eficiencia >= 60:
-            badge_bg, badge_color, badge_text = "#fef9c3", "#854d0e", "⚠️ Aceptable"
+            badge_bg, badge_color, badge_text = "#fef9c3", "#854d0e", "Aceptable"
         else:
-            badge_bg, badge_color, badge_text = "#fee2e2", "#991b1b", "🔴 Revisar"
+            badge_bg, badge_color, badge_text = "#fee2e2", "#991b1b", "Revisar"
 
         tipo_rollo = "Empalme" if rollo.es_grande else "Directo"
 
@@ -1164,7 +1238,7 @@ else:
         
         csv = df_cortes.to_csv(index=False).encode('utf-8')
         st.download_button(
-            "⬇️ Descargar Plan de Corte (CSV)",
+            "Descargar plan de corte (CSV)",
             csv,
             "plan_corte_jenny.csv",
             "text/csv"
@@ -1212,7 +1286,7 @@ else:
             
             csv_f = df_f.to_csv(index=False).encode('utf-8')
             st.download_button(
-                "⬇️ Descargar Plan de Fuentes (CSV)",
+                "Descargar plan de fuentes (CSV)",
                 csv_f,
                 "plan_fuentes.csv",
                 "text/csv"
@@ -1221,4 +1295,3 @@ else:
 # Footer
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;">Optimizador Jenny v3.0 · Minimiza desperdicios · Maximiza eficiencia</p>', unsafe_allow_html=True)
-
