@@ -505,12 +505,13 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
     # Función objetivo: minimizar rollos
     problema += lpSum([x[i] for i in range(len(patrones_unicos))]), "Total_Rollos"
     
-    # Restricciones: cumplir todos los pedidos (normales + colas)
+    # Restricciones: cumplir EXACTAMENTE los pedidos (normales + colas)
+    # Igualdad estricta para evitar generar cortes que el cliente no pidió
     for largo_req, cantidad_req in cortes_para_optimizar_con_colas.items():
         problema += lpSum([
             x[i] * patrones_unicos[i].count(largo_req)
             for i in range(len(patrones_unicos))
-        ]) >= cantidad_req, f"Cumplir_Corte_{largo_req}"
+        ]) == cantidad_req, f"Cumplir_Corte_{largo_req}"
     
     # --- 6. Resolver ---
     problema.solve()
@@ -1300,4 +1301,4 @@ else:
             )
 
 # Footer
-st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)#d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)
