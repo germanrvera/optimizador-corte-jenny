@@ -282,6 +282,8 @@ st.markdown("""
         border: 1.5px solid rgba(255,255,255,0.25) !important;
         font-weight: 600 !important;
         box-shadow: none !important;
+        padding: 0.4rem 0.6rem !important;
+        min-height: 0 !important;
     }
     [data-testid="stSidebar"] .stButton > button:hover {
         background: rgba(255,255,255,0.2) !important;
@@ -879,6 +881,9 @@ if 'resultados_fuentes' not in st.session_state:
 if 'calcular_fuentes_enabled' not in st.session_state:
     st.session_state.calcular_fuentes_enabled = False
 
+if 'editando_idx' not in st.session_state:
+    st.session_state.editando_idx = None
+
 # ============================================================================
 # HEADER
 # ============================================================================
@@ -961,15 +966,55 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Mostrar pedidos
+    # Mostrar pedidos con opciones de editar/eliminar
     if st.session_state.pedidos:
         st.markdown("### Cortes Actuales")
         
-        df = pd.DataFrame([
-            {"Largo (m)": p.largo, "Cantidad": p.cantidad, "Total (m)": p.largo * p.cantidad}
-            for p in st.session_state.pedidos
-        ])
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        for idx, p in enumerate(st.session_state.pedidos):
+            # Si está en modo edición, mostrar inputs
+            if st.session_state.editando_idx == idx:
+                with st.container():
+                    st.markdown(f'<div style="background:rgba(124,58,237,0.15);padding:0.5rem;border-radius:8px;margin-bottom:0.5rem;"><small style="color:rgba(255,255,255,0.7);">Editando corte #{idx+1}</small></div>', unsafe_allow_html=True)
+                    col_l, col_c = st.columns(2)
+                    with col_l:
+                        nuevo_largo = st.number_input("Largo (m)", min_value=0.1, max_value=1000.0, value=float(p.largo), step=0.5, key=f"edit_largo_{idx}")
+                    with col_c:
+                        nueva_cant = st.number_input("Cantidad", min_value=1, max_value=10000, value=int(p.cantidad), step=1, key=f"edit_cant_{idx}")
+                    
+                    col_save, col_cancel = st.columns(2)
+                    with col_save:
+                        if st.button("Guardar", key=f"save_{idx}", use_container_width=True, type="primary"):
+                            st.session_state.pedidos[idx] = Pedido(nuevo_largo, nueva_cant)
+                            st.session_state.editando_idx = None
+                            st.session_state.resultados = None
+                            st.rerun()
+                    with col_cancel:
+                        if st.button("Cancelar", key=f"cancel_{idx}", use_container_width=True):
+                            st.session_state.editando_idx = None
+                            st.rerun()
+            else:
+                # Vista normal: corte con botones de acción
+                col_info, col_edit, col_del = st.columns([4, 1, 1])
+                with col_info:
+                    st.markdown(
+                        f'<div style="padding:0.5rem 0;color:white;">'
+                        f'<strong style="color:white;">{p.largo}m</strong> '
+                        f'<span style="color:rgba(255,255,255,0.6);">× {p.cantidad}</span>'
+                        f'<span style="color:rgba(255,255,255,0.4);font-size:0.8rem;float:right;">{p.largo * p.cantidad}m</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+                with col_edit:
+                    if st.button("✎", key=f"edit_btn_{idx}", help="Editar"):
+                        st.session_state.editando_idx = idx
+                        st.rerun()
+                with col_del:
+                    if st.button("✕", key=f"del_btn_{idx}", help="Eliminar"):
+                        st.session_state.pedidos.pop(idx)
+                        st.session_state.resultados = None
+                        st.rerun()
+        
+        st.markdown('<div style="margin-top:0.75rem;"></div>', unsafe_allow_html=True)
         
         total_piezas = sum(p.cantidad for p in st.session_state.pedidos)
         total_metros = sum(p.largo * p.cantidad for p in st.session_state.pedidos)
@@ -978,6 +1023,7 @@ with st.sidebar:
         if st.button("Limpiar lista", use_container_width=True):
             st.session_state.pedidos = []
             st.session_state.resultados = None
+            st.session_state.editando_idx = None
             st.rerun()
     else:
         st.info("No hay cortes agregados")
@@ -1124,40 +1170,77 @@ else:
     
     st.markdown("## Resultados")
     
-    # Info de cortes grandes
-    if info_grandes:
-        st.warning("### 📏 Cortes Grandes Detectados")
-        for detalle in info_grandes:
-            st.info(f"""
-            - **{detalle['cantidad']}× piezas de {detalle['largo']}m**
-              - Cada pieza requiere **{detalle['rollos_por_pieza']} rollos**
-              - Total: **{detalle['total_rollos']} rollos**
-            """)
-        st.markdown("---")
-    
     # Métricas
     total_rollos = len(rollos)
     desperdicio_total = sum(r.desperdicio for r in rollos)
     metros_usados = sum(r.espacio_usado for r in rollos)
-    eficiencia = (metros_usados / (total_rollos * rollos[0].tipo_rollo) * 100) if total_rollos > 0 else 0
+    tipo_rollo_usado = rollos[0].tipo_rollo if rollos else 0
+    eficiencia = (metros_usados / (total_rollos * tipo_rollo_usado) * 100) if total_rollos > 0 else 0
+    
+    # Resumen en lenguaje claro para vendedores
+    if eficiencia >= 95:
+        valoracion = "Aprovechamiento excelente"
+        emoji_estado = "🟢"
+    elif eficiencia >= 80:
+        valoracion = "Buen aprovechamiento"
+        emoji_estado = "🟡"
+    else:
+        valoracion = "Aprovechamiento bajo"
+        emoji_estado = "🟠"
+    
+    plural_rollo = "rollo" if total_rollos == 1 else "rollos"
+    
+    resumen_html = (
+        '<div style="background:white;border-radius:12px;padding:1.5rem 1.75rem;margin-bottom:1.5rem;'
+        'box-shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.06);border-left:4px solid #7c3aed;">'
+        f'<div style="font-size:1.05rem;color:#111827;line-height:1.6;">'
+        f'Vas a necesitar <strong style="color:#7c3aed;">{total_rollos} {plural_rollo} de {tipo_rollo_usado:.0f}m</strong>'
+    )
+    
+    if desperdicio_total > 0:
+        resumen_html += f' para hacer todos los cortes. Sobran <strong>{desperdicio_total:.2f}m</strong> de material.'
+    else:
+        resumen_html += ' para hacer todos los cortes, sin desperdiciar material.'
+    
+    resumen_html += (
+        f'</div>'
+        f'<div style="margin-top:0.75rem;color:#6b7280;font-size:0.9rem;">'
+        f'{emoji_estado} {valoracion} · Usás {metros_usados:.2f}m de {total_rollos * tipo_rollo_usado:.0f}m disponibles'
+        f'</div>'
+        f'</div>'
+    )
+    
+    st.markdown(resumen_html, unsafe_allow_html=True)
+    
+    # Info de cortes grandes
+    if info_grandes:
+        avisos = []
+        for detalle in info_grandes:
+            plural_pieza = "pieza" if detalle['cantidad'] == 1 else "piezas"
+            plural_r = "rollo" if detalle['rollos_por_pieza'] == 1 else "rollos"
+            avisos.append(f"<strong>{detalle['cantidad']} {plural_pieza} de {detalle['largo']}m</strong> se hace empalmando {detalle['rollos_por_pieza']} {plural_r}")
+        
+        aviso_html = (
+            '<div style="background:#fef3c7;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;'
+            'border-left:4px solid #f59e0b;color:#78350f;font-size:0.9rem;line-height:1.6;">'
+            '<strong>Cortes mayores al rollo:</strong><br>' + '<br>'.join(avisos) +
+            '</div>'
+        )
+        st.markdown(aviso_html, unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Rollos", total_rollos, estado)
+        st.metric("Rollos", total_rollos)
     
     with col2:
-        st.metric("Desperdicio", f"{desperdicio_total:.2f}m", 
-                 delta=f"{(desperdicio_total/metros_usados*100):.1f}%" if metros_usados > 0 else "0%",
-                 delta_color="inverse")
+        st.metric("Desperdicio", f"{desperdicio_total:.2f}m")
     
     with col3:
-        st.metric("Eficiencia", f"{eficiencia:.1f}%",
-                 "Excelente" if eficiencia >= 80 else "Bueno")
+        st.metric("Eficiencia", f"{eficiencia:.1f}%")
     
     with col4:
-        st.metric("Material Usado", f"{metros_usados:.2f}m", 
-                 f"{len(st.session_state.pedidos)} cortes")
+        st.metric("Material Usado", f"{metros_usados:.2f}m")
     
     st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
     
@@ -1227,7 +1310,7 @@ else:
     
     # Tabla detallada
     st.markdown("---")
-    st.markdown("## 📋 Detalle Completo")
+    st.markdown("## Detalle Completo")
     
     datos = []
     for idx, rollo in enumerate(rollos_ordenados, 1):
@@ -1255,7 +1338,7 @@ else:
     # Resultados de fuentes (si los hay)
     if st.session_state.resultados_fuentes:
         st.markdown("---")
-        st.markdown("## ⚡ Resultados de Fuentes")
+        st.markdown("## Resultados de Fuentes")
         
         res_f = st.session_state.resultados_fuentes
         
@@ -1287,7 +1370,7 @@ else:
         # Detalles
         if res_f["detalles"]:
             st.markdown("---")
-            st.markdown("### 📋 Detalle de Fuentes")
+            st.markdown("### Detalle de Fuentes")
             
             df_f = pd.DataFrame(res_f["detalles"])
             st.dataframe(df_f, use_container_width=True, hide_index=True)
@@ -1301,4 +1384,4 @@ else:
             )
 
 # Footer
-st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)#d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)
+st.markdown('<p style="text-align:center;color:#9ca3af;font-size:0.8rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid #d1d5db;">Optimizador Jenny v3.0</p>', unsafe_allow_html=True)
