@@ -909,20 +909,42 @@ def generar_pdf_plan_corte(rollos, pedidos, info_grandes, usuario_email, logo_pa
     
     rollos_ordenados = sorted(rollos, key=lambda r: r.desperdicio)
     
-    plan_data = [['Rollo', 'Tipo', 'Piezas a cortar', 'Usado', 'Sobra']]
+    # Construir mapa de colas → corte original
+    mapa_colas_pdf = {}
+    if rollos_ordenados:
+        tipo_rollo_pdf = rollos_ordenados[0].tipo_rollo
+        for p in pedidos:
+            if p.largo > tipo_rollo_pdf:
+                cola = round(p.largo - math.floor(p.largo / tipo_rollo_pdf) * tipo_rollo_pdf, 2)
+                if cola > 0:
+                    mapa_colas_pdf[cola] = p.largo
+    largos_pedidos_pdf = {round(p.largo, 2) for p in pedidos}
+    
+    plan_data = [['Rollo', 'Tipo', 'Pieza', 'Largo', 'Origen del corte', 'Sobra']]
     for idx, rollo in enumerate(rollos_ordenados, 1):
         tipo = "Empalme" if rollo.es_grande else "Directo"
-        piezas_str = " + ".join([f"{c}m" for c in rollo.cortes])
-        usado = sum(rollo.cortes)
-        plan_data.append([
-            f"#{idx}",
-            tipo,
-            piezas_str,
-            f"{usado}m",
-            f"{rollo.desperdicio:.2f}m"
-        ])
+        for num, corte in enumerate(rollo.cortes, 1):
+            corte_r = round(corte, 2)
+            # Determinar origen
+            if rollo.es_grande and rollo.origen_cortes and rollo.origen_cortes[num-1]:
+                origen = rollo.origen_cortes[num-1]
+            elif corte_r in largos_pedidos_pdf:
+                origen = f"Pedido {corte_r}m"
+            elif corte_r in mapa_colas_pdf:
+                origen = f"Cola del {mapa_colas_pdf[corte_r]}m"
+            else:
+                origen = "—"
+            
+            plan_data.append([
+                f"#{idx}",
+                tipo,
+                f"{num}",
+                f"{corte}m",
+                origen,
+                f"{rollo.desperdicio:.2f}m"
+            ])
     
-    tabla_plan = Table(plan_data, colWidths=[1.8*cm, 2.5*cm, 8.2*cm, 2.5*cm, 3*cm])
+    tabla_plan = Table(plan_data, colWidths=[1.5*cm, 2.8*cm, 1.2*cm, 2*cm, 7*cm, 3.5*cm])
     tabla_plan.setStyle(TableStyle([
         # Header
         ('BACKGROUND', (0,0), (-1,0), color_dark),
@@ -932,20 +954,21 @@ def generar_pdf_plan_corte(rollos, pedidos, info_grandes, usuario_email, logo_pa
         ('ALIGN', (0,0), (-1,0), 'LEFT'),
         # Body
         ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
-        ('FONTSIZE', (0,1), (-1,-1), 9.5),
+        ('FONTSIZE', (0,1), (-1,-1), 9),
         ('TEXTCOLOR', (0,1), (-1,-1), color_dark),
-        ('FONTNAME', (0,1), (0,-1), 'Helvetica-Bold'),  # Columna rollo en bold
+        ('FONTNAME', (0,1), (0,-1), 'Helvetica-Bold'),
         # Filas alternadas
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f9fafb')]),
         # Lines
         ('LINEBELOW', (0,0), (-1,0), 1, color_dark),
         ('BOX', (0,0), (-1,-1), 0.5, color_border),
         # Padding
-        ('LEFTPADDING', (0,0), (-1,-1), 10),
-        ('RIGHTPADDING', (0,0), (-1,-1), 10),
-        ('TOPPADDING', (0,0), (-1,-1), 9),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 9),
-        ('ALIGN', (3,1), (-1,-1), 'RIGHT'),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ('TOPPADDING', (0,0), (-1,-1), 7),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 7),
+        ('ALIGN', (2,1), (3,-1), 'CENTER'),
+        ('ALIGN', (5,1), (5,-1), 'RIGHT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
     ]))
     story.append(tabla_plan)
