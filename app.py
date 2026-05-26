@@ -971,7 +971,7 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
     
     # Paleta industrial - como cinta métrica
     colores_industriales = [
-        '#7c3aed',  # Violeta (brand)
+        '#7c3aed',  # Violeta (brand) - igual que chips
         '#2563eb',  # Azul
         '#db2777',  # Rosa
         '#d97706',  # Ámbar
@@ -986,49 +986,40 @@ def crear_visualizacion_rollo_pulp(rollo: RolloResultado, numero: int) -> go.Fig
         color = colores_industriales[idx % len(colores_industriales)]
         porcentaje = (corte / rollo.tipo_rollo) * 100
         
-        # Color del texto según el color de fondo
-        text_color = '#f5f1e8' if color in ['#1a1a1a', '#3d3d3d', '#2d2d2d', '#cc3700'] else '#0a0a0a'
-        
         fig.add_trace(go.Bar(
             y=['Rollo'],
             x=[corte],
             orientation='h',
-            name=f'Corte {idx+1}',
+            name=f'Pieza {idx+1}',
             marker=dict(
                 color=color,
-                line=dict(color='#0a0a0a', width=2)
+                line=dict(color='white', width=2)
             ),
-            text=f'<b style="font-family:Fraunces,serif;font-size:18px;">{corte}m</b>',
+            text=f'<b>{idx+1} · {corte}m</b>',
             textposition='inside',
-            textfont=dict(color=text_color, size=16, family='Plus Jakarta Sans'),
-            hovertemplate=f'<b>Corte {idx+1}</b><br>Largo: {corte}m<br>{porcentaje:.1f}% del rollo<extra></extra>',
+            textfont=dict(color='white', size=13, family='Plus Jakarta Sans'),
+            hovertemplate=f'<b>Pieza {idx+1}</b><br>Largo: {corte}m<br>{porcentaje:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
         posicion += corte
     
-    # Desperdicio con estilo de cinta
+    # Desperdicio
     if rollo.desperdicio > 0:
         porcentaje_desp = (rollo.desperdicio / rollo.tipo_rollo) * 100
-        
         fig.add_trace(go.Bar(
             y=['Rollo'],
             x=[rollo.desperdicio],
             orientation='h',
-            name='Desperdicio',
+            name='Sobra',
             marker=dict(
-                color='#faf7f0',
-                pattern=dict(
-                    shape='/',
-                    fgcolor='#1a1a1a',
-                    size=8,
-                    solidity=0.4
-                ),
-                line=dict(color='#0a0a0a', width=2)
+                color='#f3f4f6',
+                pattern=dict(shape='/', fgcolor='#9ca3af', size=8, solidity=0.4),
+                line=dict(color='#d1d5db', width=2)
             ),
-            text=f'<b>{rollo.desperdicio:.2f}m</b>',
+            text=f'Sobra {rollo.desperdicio:.2f}m',
             textposition='inside',
-            textfont=dict(color='#0a0a0a', size=13, family='Plus Jakarta Sans'),
-            hovertemplate=f'<b>Desperdicio</b><br>{rollo.desperdicio:.2f}m<br>{porcentaje_desp:.1f}% del rollo<extra></extra>',
+            textfont=dict(color='#6b7280', size=11, family='Plus Jakarta Sans'),
+            hovertemplate=f'<b>Sobra</b><br>{rollo.desperdicio:.2f}m<br>{porcentaje_desp:.1f}% del rollo<extra></extra>',
             base=posicion
         ))
     
@@ -1577,8 +1568,21 @@ else:
 
             with col1:
                 st.markdown('<p style="font-size:0.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;">Piezas del corte</p>', unsafe_allow_html=True)
-                chips_style = "display:inline-block;padding:0.35rem 0.75rem;margin:0.2rem 0.2rem 0.2rem 0;background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;font-family:'DM Mono',monospace;font-size:0.9rem;color:#111827;font-weight:500;"
-                piezas_html = "".join(f'<span style="{chips_style}">{pieza}m</span>' for pieza in rollo.cortes)
+                
+                colores_chips = ['#7c3aed','#2563eb','#db2777','#d97706','#0891b2','#9333ea','#dc2626','#0369a1']
+                piezas_html = ""
+                for i, pieza in enumerate(rollo.cortes):
+                    color = colores_chips[i % len(colores_chips)]
+                    piezas_html += (
+                        f'<span style="display:inline-flex;align-items:center;gap:6px;'
+                        f'padding:0.35rem 0.75rem;margin:0.2rem 0.2rem 0.2rem 0;'
+                        f'background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:8px;'
+                        f'font-size:0.9rem;color:#111827;font-weight:600;">'
+                        f'<span style="background:{color};color:white;border-radius:50%;'
+                        f'width:18px;height:18px;display:inline-flex;align-items:center;'
+                        f'justify-content:center;font-size:0.65rem;font-weight:700;flex-shrink:0;">{i+1}</span>'
+                        f'{pieza}m</span>'
+                    )
                 st.markdown(piezas_html, unsafe_allow_html=True)
 
             with col2:
@@ -1607,10 +1611,12 @@ else:
         for num, pieza in enumerate(rollo.cortes, 1):
             datos.append({
                 "Rollo": f"#{idx}",
-                "Tipo": "Grande" if rollo.es_grande else "Optimizado",
-                "Pieza": num,
-                "Largo (m)": pieza,
-                "Eficiencia (%)": f"{rollo.eficiencia:.1f}"
+                "Tipo": "Grande (empalme)" if rollo.es_grande else "Directo",
+                "Pieza N°": num,
+                "Largo": f"{pieza}m",          # String → sin sufijos automáticos
+                "Rollo total": f"{rollo.tipo_rollo:.0f}m",
+                "Sobra": f"{rollo.desperdicio:.2f}m",
+                "Eficiencia": f"{rollo.eficiencia:.1f}%"
             })
     
     if datos:
