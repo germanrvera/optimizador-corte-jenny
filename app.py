@@ -25,6 +25,14 @@ import math
 from PIL import Image
 import os
 from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpInteger, LpStatus
+from io import BytesIO
+from datetime import datetime
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm, mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 
 # ============================================================================
 # CONFIGURACIÓN DE LA PÁGINA
@@ -676,6 +684,281 @@ def optimizar_fuentes_agrupadas(pedidos_list: List[Pedido],
     }
     
     return conteo_fuentes, detalles, estadisticas
+
+
+# ============================================================================
+# GENERACIÓN DE PDF
+# ============================================================================
+
+def generar_pdf_plan_corte(rollos, pedidos, info_grandes, usuario_email, logo_path=None):
+    """Genera un PDF profesional con el plan de corte para imprimir."""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=1.5*cm,
+        rightMargin=1.5*cm,
+        topMargin=1.5*cm,
+        bottomMargin=1.5*cm,
+        title="Plan de Corte - Jenny"
+    )
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    
+    color_brand = colors.HexColor('#7c3aed')
+    color_dark = colors.HexColor('#111827')
+    color_muted = colors.HexColor('#6b7280')
+    color_light = colors.HexColor('#f3f4f6')
+    color_border = colors.HexColor('#d1d5db')
+    
+    style_title = ParagraphStyle(
+        'TitleCustom',
+        parent=styles['Title'],
+        fontName='Helvetica-Bold',
+        fontSize=22,
+        textColor=color_dark,
+        spaceAfter=4,
+        alignment=TA_LEFT
+    )
+    
+    style_subtitle = ParagraphStyle(
+        'SubtitleCustom',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        textColor=color_muted,
+        spaceAfter=20,
+        alignment=TA_LEFT
+    )
+    
+    style_section = ParagraphStyle(
+        'SectionCustom',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=13,
+        textColor=color_dark,
+        spaceBefore=16,
+        spaceAfter=8,
+        alignment=TA_LEFT
+    )
+    
+    style_body = ParagraphStyle(
+        'BodyCustom',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        textColor=color_dark,
+        spaceAfter=6,
+        leading=14
+    )
+    
+    style_meta = ParagraphStyle(
+        'MetaCustom',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=8.5,
+        textColor=color_muted,
+        alignment=TA_RIGHT
+    )
+    
+    story = []
+    
+    # === ENCABEZADO ===
+    fecha = datetime.now().strftime("%d/%m/%Y · %H:%M hs")
+    encabezado_data = [[
+        Paragraph("<b>Plan de Corte</b>", style_title),
+        Paragraph(f"{fecha}<br/>{usuario_email}", style_meta)
+    ]]
+    encabezado = Table(encabezado_data, colWidths=[12*cm, 6*cm])
+    encabezado.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('LEFTPADDING', (0,0), (-1,-1), 0),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
+    ]))
+    story.append(encabezado)
+    story.append(Paragraph("Optimizador Jenny · Sistema de corte inteligente", style_subtitle))
+    
+    # Línea separadora
+    sep = Table([['']], colWidths=[18*cm], rowHeights=[2])
+    sep.setStyle(TableStyle([('BACKGROUND', (0,0), (-1,-1), color_brand)]))
+    story.append(sep)
+    story.append(Spacer(1, 14))
+    
+    # === RESUMEN ===
+    total_rollos = len(rollos)
+    desperdicio_total = sum(r.desperdicio for r in rollos)
+    metros_usados = sum(r.espacio_usado for r in rollos)
+    tipo_rollo = rollos[0].tipo_rollo if rollos else 0
+    eficiencia = (metros_usados / (total_rollos * tipo_rollo) * 100) if total_rollos > 0 else 0
+    
+    plural_rollo = "rollo" if total_rollos == 1 else "rollos"
+    resumen_txt = f'<b>Necesitás {total_rollos} {plural_rollo} de {tipo_rollo:.0f}m</b> para hacer todos los cortes.'
+    if desperdicio_total > 0:
+        resumen_txt += f' Sobran <b>{desperdicio_total:.2f}m</b> de material.'
+    else:
+        resumen_txt += ' Sin desperdicio de material.'
+    
+    resumen_data = [[Paragraph(resumen_txt, style_body)]]
+    resumen = Table(resumen_data, colWidths=[18*cm])
+    resumen.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f5f3ff')),
+        ('BOX', (0,0), (-1,-1), 0.5, color_border),
+        ('LINEBEFORE', (0,0), (0,-1), 3, color_brand),
+        ('LEFTPADDING', (0,0), (-1,-1), 14),
+        ('RIGHTPADDING', (0,0), (-1,-1), 14),
+        ('TOPPADDING', (0,0), (-1,-1), 12),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+    ]))
+    story.append(resumen)
+    story.append(Spacer(1, 16))
+    
+    # === MÉTRICAS EN GRILLA ===
+    metricas_data = [
+        [
+            Paragraph(f'<font color="#6b7280" size="8">ROLLOS</font><br/><font size="18"><b>{total_rollos}</b></font>', style_body),
+            Paragraph(f'<font color="#6b7280" size="8">DESPERDICIO</font><br/><font size="18"><b>{desperdicio_total:.2f}m</b></font>', style_body),
+            Paragraph(f'<font color="#6b7280" size="8">EFICIENCIA</font><br/><font size="18"><b>{eficiencia:.1f}%</b></font>', style_body),
+            Paragraph(f'<font color="#6b7280" size="8">MATERIAL USADO</font><br/><font size="18"><b>{metros_usados:.2f}m</b></font>', style_body),
+        ]
+    ]
+    metricas = Table(metricas_data, colWidths=[4.5*cm]*4)
+    metricas.setStyle(TableStyle([
+        ('BOX', (0,0), (-1,-1), 0.5, color_border),
+        ('INNERGRID', (0,0), (-1,-1), 0.5, color_border),
+        ('LEFTPADDING', (0,0), (-1,-1), 12),
+        ('RIGHTPADDING', (0,0), (-1,-1), 12),
+        ('TOPPADDING', (0,0), (-1,-1), 10),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ]))
+    story.append(metricas)
+    story.append(Spacer(1, 16))
+    
+    # === CORTES PEDIDOS ===
+    story.append(Paragraph("Cortes solicitados", style_section))
+    
+    pedidos_data = [['Largo', 'Cantidad', 'Total']]
+    for p in pedidos:
+        pedidos_data.append([f"{p.largo}m", f"{p.cantidad}", f"{p.largo * p.cantidad}m"])
+    
+    total_piezas = sum(p.cantidad for p in pedidos)
+    total_metros = sum(p.largo * p.cantidad for p in pedidos)
+    pedidos_data.append(['Total', f'{total_piezas} piezas', f'{total_metros:.2f}m'])
+    
+    tabla_pedidos = Table(pedidos_data, colWidths=[6*cm, 6*cm, 6*cm])
+    tabla_pedidos.setStyle(TableStyle([
+        # Header
+        ('BACKGROUND', (0,0), (-1,0), color_dark),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        # Body
+        ('FONTNAME', (0,1), (-1,-2), 'Helvetica'),
+        ('FONTSIZE', (0,1), (-1,-1), 10),
+        ('TEXTCOLOR', (0,1), (-1,-1), color_dark),
+        # Total row
+        ('BACKGROUND', (0,-1), (-1,-1), color_light),
+        ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+        # Lines
+        ('LINEBELOW', (0,0), (-1,0), 1, color_dark),
+        ('LINEBELOW', (0,1), (-1,-2), 0.3, color_border),
+        ('LINEABOVE', (0,-1), (-1,-1), 0.5, color_dark),
+        ('BOX', (0,0), (-1,-1), 0.5, color_border),
+        # Padding
+        ('LEFTPADDING', (0,0), (-1,-1), 12),
+        ('RIGHTPADDING', (0,0), (-1,-1), 12),
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('ALIGN', (1,0), (-1,-1), 'CENTER'),
+    ]))
+    story.append(tabla_pedidos)
+    
+    # === CORTES GRANDES (si hay) ===
+    if info_grandes:
+        story.append(Spacer(1, 16))
+        story.append(Paragraph("Cortes mayores al rollo (requieren empalme)", style_section))
+        
+        avisos_grandes = []
+        for detalle in info_grandes:
+            plural_pieza = "pieza" if detalle['cantidad'] == 1 else "piezas"
+            plural_r = "rollo" if detalle['rollos_por_pieza'] == 1 else "rollos"
+            avisos_grandes.append(
+                f"• <b>{detalle['cantidad']} {plural_pieza} de {detalle['largo']}m</b>: "
+                f"se hace empalmando {detalle['rollos_por_pieza']} {plural_r}"
+            )
+        
+        aviso_grandes_data = [[Paragraph('<br/>'.join(avisos_grandes), style_body)]]
+        aviso_grandes_tabla = Table(aviso_grandes_data, colWidths=[18*cm])
+        aviso_grandes_tabla.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#fef3c7')),
+            ('LINEBEFORE', (0,0), (0,-1), 3, colors.HexColor('#f59e0b')),
+            ('TEXTCOLOR', (0,0), (-1,-1), colors.HexColor('#78350f')),
+            ('LEFTPADDING', (0,0), (-1,-1), 14),
+            ('RIGHTPADDING', (0,0), (-1,-1), 14),
+            ('TOPPADDING', (0,0), (-1,-1), 10),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+        ]))
+        story.append(aviso_grandes_tabla)
+    
+    # === PLAN DE CORTE DETALLADO ===
+    story.append(Spacer(1, 16))
+    story.append(Paragraph("Plan de corte por rollo", style_section))
+    
+    rollos_ordenados = sorted(rollos, key=lambda r: r.desperdicio)
+    
+    plan_data = [['Rollo', 'Tipo', 'Piezas a cortar', 'Usado', 'Sobra']]
+    for idx, rollo in enumerate(rollos_ordenados, 1):
+        tipo = "Empalme" if rollo.es_grande else "Directo"
+        piezas_str = " + ".join([f"{c}m" for c in rollo.cortes])
+        usado = sum(rollo.cortes)
+        plan_data.append([
+            f"#{idx}",
+            tipo,
+            piezas_str,
+            f"{usado}m",
+            f"{rollo.desperdicio:.2f}m"
+        ])
+    
+    tabla_plan = Table(plan_data, colWidths=[1.8*cm, 2.5*cm, 8.2*cm, 2.5*cm, 3*cm])
+    tabla_plan.setStyle(TableStyle([
+        # Header
+        ('BACKGROUND', (0,0), (-1,0), color_dark),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('ALIGN', (0,0), (-1,0), 'LEFT'),
+        # Body
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,1), (-1,-1), 9.5),
+        ('TEXTCOLOR', (0,1), (-1,-1), color_dark),
+        ('FONTNAME', (0,1), (0,-1), 'Helvetica-Bold'),  # Columna rollo en bold
+        # Filas alternadas
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f9fafb')]),
+        # Lines
+        ('LINEBELOW', (0,0), (-1,0), 1, color_dark),
+        ('BOX', (0,0), (-1,-1), 0.5, color_border),
+        # Padding
+        ('LEFTPADDING', (0,0), (-1,-1), 10),
+        ('RIGHTPADDING', (0,0), (-1,-1), 10),
+        ('TOPPADDING', (0,0), (-1,-1), 9),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 9),
+        ('ALIGN', (3,1), (-1,-1), 'RIGHT'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    story.append(tabla_plan)
+    
+    # === FOOTER ===
+    story.append(Spacer(1, 30))
+    footer_txt = f'<font color="#9ca3af" size="8">Generado por Optimizador Jenny · {fecha}</font>'
+    story.append(Paragraph(footer_txt, ParagraphStyle('Footer', alignment=TA_CENTER, parent=styles['Normal'])))
+    
+    # Construir PDF
+    doc.build(story)
+    
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
 
 
 # ============================================================================
@@ -1334,13 +1617,37 @@ else:
         df_cortes = pd.DataFrame(datos)
         st.dataframe(df_cortes, use_container_width=True, hide_index=True)
         
-        csv = df_cortes.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            "Descargar plan de corte (CSV)",
-            csv,
-            "plan_corte_jenny.csv",
-            "text/csv"
-        )
+        st.markdown('<div style="margin-top:1rem;"></div>', unsafe_allow_html=True)
+        
+        # Botones de descarga lado a lado
+        col_pdf, col_csv = st.columns(2)
+        
+        with col_pdf:
+            pdf_bytes = generar_pdf_plan_corte(
+                rollos,
+                st.session_state.pedidos,
+                info_grandes,
+                st.session_state.user_email
+            )
+            fecha_archivo = datetime.now().strftime("%Y%m%d_%H%M")
+            st.download_button(
+                "📄 Descargar PDF imprimible",
+                pdf_bytes,
+                f"plan_corte_{fecha_archivo}.pdf",
+                "application/pdf",
+                use_container_width=True,
+                type="primary"
+            )
+        
+        with col_csv:
+            csv = df_cortes.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "Descargar CSV",
+                csv,
+                "plan_corte_jenny.csv",
+                "text/csv",
+                use_container_width=True
+            )
     
     # Resultados de fuentes (si los hay)
     if st.session_state.resultados_fuentes:
