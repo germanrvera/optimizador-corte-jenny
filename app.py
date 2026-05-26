@@ -354,13 +354,15 @@ class RolloResultado:
     """Representa un rollo resultado con información detallada."""
     
     def __init__(self, rollo_id: str, tipo_rollo: float, cortes: List[float], 
-                 desperdicio: float, es_grande: bool = False):
+                 desperdicio: float, es_grande: bool = False, origen_cortes: List[str] = None):
         self.rollo_id = rollo_id
         self.tipo_rollo = tipo_rollo
         self.cortes = cortes
         self.desperdicio = desperdicio
         self.es_grande = es_grande
         self.espacio_usado = sum(cortes)
+        # origen_cortes: lista paralela a cortes con el largo original del pedido
+        self.origen_cortes = origen_cortes or [None] * len(cortes)
     
     @property
     def eficiencia(self) -> float:
@@ -428,13 +430,13 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
                 
                 # Procesar los rollos COMPLETOS (todos menos el último)
                 for rollo_idx in range(rollos_necesarios - 1):
-                    # Rollo completo usado para el corte grande
                     rollo = RolloResultado(
                         rollo_id=f"GRANDE-{largo}m-P{pieza_idx+1}-R{rollo_idx+1}",
                         tipo_rollo=longitud_rollo,
                         cortes=[longitud_rollo],
                         desperdicio=0,
-                        es_grande=True
+                        es_grande=True,
+                        origen_cortes=[f"Corte {largo}m"]
                     )
                     rollos_grandes.append(rollo)
                     restante -= longitud_rollo
@@ -1606,15 +1608,41 @@ else:
     st.markdown("---")
     st.markdown("## Detalle Completo")
     
+    # Construir mapa de colas → corte original
+    # Para cada corte grande, su cola = largo - N * longitud_rollo
+    mapa_colas = {}  # {largo_cola: largo_original}
+    if rollos:
+        tipo_rollo = rollos[0].tipo_rollo
+        for p in st.session_state.pedidos:
+            if p.largo > tipo_rollo:
+                cola = round(p.largo - math.floor(p.largo / tipo_rollo) * tipo_rollo, 2)
+                if cola > 0:
+                    mapa_colas[cola] = p.largo
+    
+    # Construir conjunto de largos pedidos normales
+    largos_pedidos = {round(p.largo, 2) for p in st.session_state.pedidos}
+    
     datos = []
     for idx, rollo in enumerate(rollos_ordenados, 1):
         for num, pieza in enumerate(rollo.cortes, 1):
+            pieza_r = round(pieza, 2)
+            
+            # Determinar origen
+            if rollo.es_grande and rollo.origen_cortes and rollo.origen_cortes[num-1]:
+                origen = rollo.origen_cortes[num-1]
+            elif pieza_r in largos_pedidos:
+                origen = f"Pedido {pieza_r}m"
+            elif pieza_r in mapa_colas:
+                origen = f"Cola del {mapa_colas[pieza_r]}m"
+            else:
+                origen = "—"
+            
             datos.append({
                 "Rollo": f"#{idx}",
                 "Tipo": "Grande (empalme)" if rollo.es_grande else "Directo",
                 "Pieza N°": num,
-                "Largo": f"{pieza}m",          # String → sin sufijos automáticos
-                "Rollo total": f"{rollo.tipo_rollo:.0f}m",
+                "Largo": f"{pieza}m",
+                "Origen": origen,
                 "Sobra": f"{rollo.desperdicio:.2f}m",
                 "Eficiencia": f"{rollo.eficiencia:.1f}%"
             })
