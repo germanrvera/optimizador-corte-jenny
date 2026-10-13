@@ -24,7 +24,11 @@ import collections
 import math
 from PIL import Image
 import os
-from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpInteger, LpStatus
+try:
+    from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpInteger, LpStatus
+    PULP_AVAILABLE = True
+except ImportError:
+    PULP_AVAILABLE = False
 from io import BytesIO
 from datetime import datetime
 from reportlab.lib.pagesizes import A4
@@ -511,49 +515,70 @@ def optimizar_cortes_pulp(pedidos: List[Pedido], longitud_rollo: float,
     if not patrones_unicos:
         return "No Optimal (Sin patrones válidos)", rollos_grandes, info_grandes
     
-    # --- 5. Crear modelo de optimización ---
-    problema = LpProblem("Minimizar_Desperdicio_Corte", LpMinimize)
-    
-    # Variables: cuántas veces usar cada patrón
-    x = LpVariable.dicts("UsoPatron", range(len(patrones_unicos)), 0, None, LpInteger)
-    
-    # Función objetivo: minimizar rollos
-    problema += lpSum([x[i] for i in range(len(patrones_unicos))]), "Total_Rollos"
-    
-    # Restricciones: cumplir EXACTAMENTE los pedidos (normales + colas)
-    # Igualdad estricta para evitar generar cortes que el cliente no pidió
-    for largo_req, cantidad_req in cortes_para_optimizar_con_colas.items():
-        problema += lpSum([
-            x[i] * patrones_unicos[i].count(largo_req)
-            for i in range(len(patrones_unicos))
-        ]) == cantidad_req, f"Cumplir_Corte_{largo_req}"
-    
-    # --- 6. Resolver ---
-    problema.solve()
-    estado = LpStatus[problema.status]
-    
-    # --- 7. Procesar resultados ---
+    # --- 5. Resolver: LP con PuLP o fallback greedy ---
     rollos_optimizados = []
-    
-    if estado == 'Optimal':
-        rollo_contador = 1
-        for i in range(len(patrones_unicos)):
-            num_usos = int(x[i].varValue)
-            if num_usos > 0:
-                for _ in range(num_usos):
-                    patron = list(patrones_unicos[i])
-                    uso = sum(patron)
-                    desperdicio = longitud_rollo - uso
-                    
-                    rollo = RolloResultado(
-                        rollo_id=f"OPT-{rollo_contador}",
-                        tipo_rollo=longitud_rollo,
-                        cortes=patron,
-                        desperdicio=desperdicio,
-                        es_grande=False
-                    )
-                    rollos_optimizados.append(rollo)
-                    rollo_contador += 1
+
+    if PULP_AVAILABLE:
+        # Crear modelo de programación lineal
+        problema = LpProblem("Minimizar_Desperdicio_Corte", LpMinimize)
+        x = LpVariable.dicts("UsoPatron", range(len(patrones_unicos)), 0, None, LpInteger)
+        problema += lpSum([x[i] for i in range(len(patrones_unicos))]), "Total_Rollos"
+        for largo_req, cantidad_req in cortes_para_optimizar_con_colas.items():
+            problema += lpSum([
+                x[i] * patrones_unicos[i].count(largo_req)
+                for i in range(len(patrones_unicos))
+            ]) == cantidad_req, f"Cumplir_Corte_{largo_req}"
+        problema.solve()
+        estado = LpStatus[problema.status]
+
+        if estado == 'Optimal':
+            rollo_contador = 1
+            for i in range(len(patrones_unicos)):
+                num_usos = int(x[i].varValue)
+                if num_usos > 0:
+                    for _ in range(num_usos):
+                        patron = list(patrones_unicos[i])
+                        uso = sum(patron)
+                        desperdicio = longitud_rollo - uso
+                        rollo = RolloResultado(
+                            rollo_id=f"OPT-{rollo_contador}",
+                            tipo_rollo=longitud_rollo,
+                            cortes=patron,
+                            desperdicio=desperdicio,
+                            es_grande=False
+                        )
+                        rollos_optimizados.append(rollo)
+                        rollo_contador += 1
+    else:
+        # Fallback: algoritmo greedy First-Fit Decreasing
+        estado = 'Optimal'
+        lista_cortes = []
+        for largo, cantidad in cortes_para_optimizar_con_colas.items():
+            lista_cortes.extend([largo] * cantidad)
+        lista_cortes.sort(reverse=True)
+
+        rollos_abiertos = []  # list of [remaining_capacity, [cortes]]
+        for corte in lista_cortes:
+            colocado = False
+            for rollo_abierto in rollos_abiertos:
+                if rollo_abierto[0] >= corte - 1e-9:
+                    rollo_abierto[1].append(corte)
+                    rollo_abierto[0] -= corte
+                    colocado = True
+                    break
+            if not colocado:
+                rollos_abiertos.append([longitud_rollo - corte, [corte]])
+
+        for idx, (restante, cortes_rollo) in enumerate(rollos_abiertos, start=1):
+            desperdicio = longitud_rollo - sum(cortes_rollo)
+            rollo = RolloResultado(
+                rollo_id=f"OPT-{idx}",
+                tipo_rollo=longitud_rollo,
+                cortes=cortes_rollo,
+                desperdicio=desperdicio,
+                es_grande=False
+            )
+            rollos_optimizados.append(rollo)
     
     # --- 8. Combinar resultados ---
     todos_rollos = rollos_grandes + rollos_optimizados
